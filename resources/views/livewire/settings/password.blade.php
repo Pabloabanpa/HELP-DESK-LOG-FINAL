@@ -40,25 +40,25 @@ new class extends Component {
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <x-settings.layout :heading="__('Update password')" :subheading="__('Ensure your account is using a long, random password to stay secure')">
+    <x-settings.layout :heading="__('Modifica tu Conraseña')" :subheading="__('Esta accion cambiara tus credenciales de acceso.')">
         <form wire:submit="updatePassword" class="mt-6 space-y-6">
             <flux:input
                 wire:model="current_password"
-                :label="__('Current password')"
+                :label="__('Contraseña actual')"
                 type="password"
                 required
                 autocomplete="current-password"
             />
             <flux:input
                 wire:model="password"
-                :label="__('New password')"
+                :label="__('Nueva contraseña')"
                 type="password"
                 required
                 autocomplete="new-password"
             />
             <flux:input
                 wire:model="password_confirmation"
-                :label="__('Confirm Password')"
+                :label="__('Confirmar nueva contraseña')"
                 type="password"
                 required
                 autocomplete="new-password"

@@ -1,33 +1,28 @@
 <x-layouts.app :title="__('Dashboard')">
-    <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm text-left">
-            <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                <tr>
-                    <th class="px-4 py-3">Nombre</th>
-                    <th class="px-4 py-3">Email</th>
-                    <th class="px-4 py-3">Cargo</th>
-                    <th class="px-4 py-3">CI</th>
-                    <th class="px-4 py-3">Celular</th>
-                    <th class="px-4 py-3">Oficina</th>
-                    <th class="px-4 py-3">Fecha Nac.</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                @foreach ($users as $user)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                        <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">{{ $user->name }}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $user->email }}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $user->cargo }}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $user->ci }}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $user->celular }}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">{{ $user->oficina }}</td>
-                        <td class="px-4 py-2 text-gray-700 dark:text-gray-300">
-                            {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d/m/Y') }}
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <div class="flex flex-col items-center justify-center h-[80vh] text-center">
+        <!-- Ícono o imagen de bienvenida -->
+        <div class="mb-6">
+            <x-heroicon-o-user-circle class="w-24 h-24 text-indigo-500 dark:text-indigo-300" />
+        </div>
+
+        <!-- Título de bienvenida -->
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+            ¡Bienvenido, {{ auth()->user()->name }}!
+        </h1>
+
+        <!-- Subtítulo -->
+        <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
+            Este es tu panel principal del sistema Help Desk.
+        </p>
+
+        <!-- Accesos rápidos (opcional) -->
+        <div class="mt-6 flex flex-wrap justify-center gap-4">
+            <a href="{{ route('admin.usuarios') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                Ver Usuarios
+            </a>
+            <a href="{{ route('solicitudes.index') }}" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
+                Ver Solicitudes
+            </a>
+        </div>
     </div>
-    
 </x-layouts.app>
