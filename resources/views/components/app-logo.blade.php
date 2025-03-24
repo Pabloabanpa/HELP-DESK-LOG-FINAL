@@ -1,6 +1,12 @@
-<div class="flex aspect-square size-8 items-center justify-center rounded-md bg-accent-content text-accent-foreground">
-    <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
+<div class="flex items-center space-x-2">
+    <!-- Logo más grande, sin margen -->
+    <img src="{{ asset('images/logo-tarija.png') }}" alt="Logo" class="w-10 h-10 object-contain" />
+
+    <!-- Texto con animación tipo tecleo -->
+    <div class="text-left">
+        <span class="block text-xl font-extrabold text-gray-800 dark:text-white animate-typing overflow-hidden whitespace-nowrap border-r-2 border-gray-800 dark:border-white pr-2">
+            HELP-DESK
+        </span>
+    </div>
 </div>
-<div class="ml-1 grid flex-1 text-left text-sm">
-    <span class="mb-0.5 truncate leading-none font-semibold">Laravel Starter Kit</span>
-</div>
+

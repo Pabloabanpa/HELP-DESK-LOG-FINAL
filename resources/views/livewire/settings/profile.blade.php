@@ -9,14 +9,26 @@ use Livewire\Volt\Component;
 new class extends Component {
     public string $name = '';
     public string $email = '';
+    public ?string $cargo = '';
+    public ?string $ci = '';
+    public ?string $celular = '';
+    public ?string $oficina = '';
+    public ?string $fecha_nacimiento = null;
+
 
     /**
      * Mount the component.
      */
     public function mount(): void
     {
+        $user = Auth::user();
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->cargo = $user->cargo;
+        $this->ci =Auth::user()->ci;
+        $this->celular =Auth::user()->celular;
+        $this->oficina = Auth::user()->oficina;
+        $this->fecha_nacimientoAuth = Auth::user()->fecha_nacimiento;
     }
 
     /**
@@ -37,6 +49,11 @@ new class extends Component {
                 'max:255',
                 Rule::unique(User::class)->ignore($user->id)
             ],
+            'cargo' => ['nullable', 'string', 'max:255'],
+            'ci' => ['nullable', 'string', 'max:30'],
+            'celular' => ['nullable', 'string', 'max:30'],
+            'oficina' => ['nullable', 'string', 'max:255'],
+            'fecha_nacimiento' => ['nullable', 'date'],
         ]);
 
         $user->fill($validated);
@@ -74,7 +91,7 @@ new class extends Component {
 
     <x-settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
+            <flux:input wire:model="name" :label="__('Nombre y Apellido')" type="text" required autofocus autocomplete="name" />
 
             <div>
                 <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
@@ -97,6 +114,11 @@ new class extends Component {
                     </div>
                 @endif
             </div>
+            <flux:input wire:model="cargo" :label="__('Cargo')" type="text" />
+                <flux:input wire:model="ci" :label="__('CI')" type="text" />
+                <flux:input wire:model="celular" :label="__('Celular')" type="text" />
+                <flux:input wire:model="oficina" :label="__('Oficina')" type="text" />
+                <flux:input wire:model="fecha_nacimiento" :label="__('Fecha de nacimiento')" type="date" />
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
