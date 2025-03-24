@@ -15,14 +15,24 @@
             <flux:navlist variant="outline">
 
                 <flux:navlist.group :heading="__('Opciones')" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                    <flux:navlist.item icon="user" :href="route('admin.usuarios')" :current="request()->routeIs('admin.usuarios')" wire:navigate>
-                        {{ __('Usuarios') }}
-                    </flux:navlist.item>
-                    <flux:navlist.item icon="wrench-screwdriver" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Atenciones') }}</flux:navlist.item>
-                    <flux:navlist.item icon="pencil-square" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Anotaciones') }}</flux:navlist.item>
-                    <flux:navlist.item icon="document" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Reportes') }}</flux:navlist.item>
-                    <flux:navlist.item icon="building-office" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Oficinas') }}</flux:navlist.item>
+                    <flux:navlist.item icon="home" :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+
+                    <flux:navlist.item icon="user" :href="route('admin.usuarios')"
+                    :current="request()->routeIs('admin.usuarios')" wire:navigate>{{ __('Usuarios') }}</flux:navlist.item>
+
+                    <flux:navlist.item icon="clipboard-document" :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Solicitudes') }}</flux:navlist.item>
+
+                    <flux:navlist.item icon="wrench-screwdriver" :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Atenciones') }}</flux:navlist.item>
+
+                    <flux:navlist.item icon="pencil-square" :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Anotaciones') }}</flux:navlist.item>
+
+                    <flux:navlist.item icon="document" :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Reportes') }}</flux:navlist.item>
+
                 </flux:navlist.group>
 
             </flux:navlist>
@@ -69,7 +79,7 @@
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                         @csrf
                         <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
-                            {{ __('Log Out') }}
+                            {{ __('Cerrar Sesión ') }}
                         </flux:menu.item>
                     </form>
                 </flux:menu>
