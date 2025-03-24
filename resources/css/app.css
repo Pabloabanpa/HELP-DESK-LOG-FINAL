@@ -64,3 +64,22 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  @keyframes blink-caret {
+    0%, 100% { border-color: transparent }
+    50% { border-color: currentColor }
+  }
+  
+  .animate-typing {
+    width: 12ch;
+    animation: typing 2.5s steps(12), blink-caret 0.75s step-end infinite;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right-width: 2px;
+  }
+  
