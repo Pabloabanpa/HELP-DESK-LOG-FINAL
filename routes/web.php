@@ -2,40 +2,30 @@
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
-use App\Http\Controllers\SolicitudController;
-use App\Http\Controllers\AtencionController;
-use App\Http\Controllers\AnotacionController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\admin\SolicitudController;
+use App\Http\Controllers\admin\AtencionController;
+use App\Http\Controllers\admin\AnotacionController;
+use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\ApiUserSyncController;
 use App\Models\Solicitud;
 
-//RUTAS DE ADMINISTRADOR
-Route::get('/admin/solicitudes', [SolicitudController::class, 'index'])->name('admin.solicitudes');
-Route::get('/admin/solicitudes/{solicitud}', [SolicitudController::class, 'show'])->name('admin.solicitudes.show');
-Route::get('/admin/solicitudes/{solicitud}/edit', [SolicitudController::class, 'edit'])->name('admin.solicitudes.edit');
-Route::put('/admin/solicitudes/{solicitud}', [SolicitudController::class, 'update'])->name('admin.solicitudes.update');
-Route::delete('/admin/solicitudes/{solicitud}', [SolicitudController::class, 'destroy'])->name('admin.solicitudes.destroy');
-Route::get('/admin/solicitudes/create', [SolicitudController::class, 'create'])->name('admin.solicitudes.create');
+// RUTAS DE ADMINISTRADOR
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    // CRUD de Usuarios (las rutas generadas serán admin.user.index, admin.user.create, etc.)
+    Route::resource('user', UserController::class);
 
-Route::get('/admin/usuarios', function () {
-    $users = \App\Models\User::all();
-    return view('admin.user.index', compact('users'));
-})->middleware(['auth', 'verified'])->name('admin.usuarios');
+    // Otras rutas de administración (solicitudes, atenciones, etc.) se pueden agregar aquí:
+    // Route::resource('solicitud', SolicitudController::class);
+    // Route::resource('atencion', AtencionController::class);
+    // Route::resource('anotacion', AnotacionController::class);
+});
 
-//Route::resource('user', UserController::class)->name('admin.users');
+// Ruta para sincronizar usuarios manualmente (consume la API externa)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/sync-users', [ApiUserSyncController::class, 'syncUsers'])->name('sync.users');
+});
 
-
-
-
-
-
-
-
-
-
-//FIN DE LAS RUA DE ADMINISTRADOR
-
-
-
+// RUTA HOME Y DASHBOARD
 Route::get('', function () {
     return view('dashboard');
 })->name('home');
@@ -44,17 +34,7 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-
-
-//Route::get('/solicitudes', function () {
-   // $solicitudes = Solicitud::with('solicitanteUser', 'tecnicoUser')->get();
-   // return view('solicitudes.index', compact('solicitudes'));
-//})->middleware(['auth', 'verified'])->name('solicitudes.index');
-
-
-
-
-//RUTAS DE AUTH
+// RUTAS DE AUTH
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
@@ -64,4 +44,3 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
-//FIN DE LAS RUTAS DE AUTH

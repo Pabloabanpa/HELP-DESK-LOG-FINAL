@@ -15,14 +15,6 @@
             Este es tu panel principal del sistema Help Desk.
         </p>
 
-        <!-- Accesos rápidos (opcional) -->
-        <div class="mt-6 flex flex-wrap justify-center gap-4">
-            <a href="{{ route('admin.usuarios') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                Ver Usuarios
-            </a>
-            <a href="{{ route('solicitudes.index') }}" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition">
-                Ver Solicitudes
-            </a>
-        </div>
+        
     </div>
 </x-layouts.app>
