@@ -1,71 +1,102 @@
 <x-layouts.app :title="__('Editar Usuario')">
-    <div class="container mx-auto py-6">
-        <h1 class="text-2xl font-bold mb-6">Editar Usuario</h1>
-        <form action="{{ route('admin.user.update', $user) }}" method="POST" class="space-y-4">
-            @csrf
-            @method('PUT')
+    <div class="max-w-3xl mx-auto py-8">
+        <div class="bg-white dark:bg-zinc-800 shadow-lg rounded-lg p-6">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+                Editar Usuario
+            </h1>
+            <form action="{{ route('admin.user.update', $user) }}" method="POST" class="space-y-6">
+                @csrf
+                @method('PUT')
 
-            <div>
-                <label for="name" class="block font-medium text-gray-700">Nombre</label>
-                <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Nombre -->
+                <div>
+                    <label for="name" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Nombre
+                    </label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <label for="email" class="block font-medium text-gray-700">Email</label>
-                <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Email
+                    </label>
+                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <label for="cargo" class="block font-medium text-gray-700">Cargo</label>
-                <input type="text" name="cargo" id="cargo" value="{{ old('cargo', $user->cargo) }}"
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Cargo -->
+                <div>
+                    <label for="cargo" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Cargo
+                    </label>
+                    <input type="text" name="cargo" id="cargo" value="{{ old('cargo', $user->cargo) }}"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <label for="oficina" class="block font-medium text-gray-700">Oficina</label>
-                <input type="text" name="oficina" id="oficina" value="{{ old('oficina', $user->oficina) }}"
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Oficina -->
+                <div>
+                    <label for="oficina" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Oficina
+                    </label>
+                    <input type="text" name="oficina" id="oficina" value="{{ old('oficina', $user->oficina) }}"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <label for="ci" class="block font-medium text-gray-700">CI</label>
-                <input type="text" name="ci" id="ci" value="{{ old('ci', $user->ci) }}"
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- CI -->
+                <div>
+                    <label for="ci" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        CI
+                    </label>
+                    <input type="text" name="ci" id="ci" value="{{ old('ci', $user->ci) }}"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <label for="celular" class="block font-medium text-gray-700">Celular</label>
-                <input type="text" name="celular" id="celular" value="{{ old('celular', $user->celular) }}"
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Celular -->
+                <div>
+                    <label for="celular" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Celular
+                    </label>
+                    <input type="text" name="celular" id="celular" value="{{ old('celular', $user->celular) }}"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <label for="fecha_nacimiento" class="block font-medium text-gray-700">Fecha de Nacimiento</label>
-                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento"
-                       value="{{ old('fecha_nacimiento', $user->fecha_nacimiento ? $user->fecha_nacimiento->format('Y-m-d') : '') }}"
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Fecha de Nacimiento -->
+                <div>
+                    <label for="fecha_nacimiento" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Fecha de Nacimiento
+                    </label>
+                    <input type="date" name="fecha_nacimiento" id="fecha_nacimiento"
+                           value="{{ old('fecha_nacimiento', $user->fecha_nacimiento ? $user->fecha_nacimiento->format('Y-m-d') : '') }}"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <!-- Sección opcional para actualizar la contraseña -->
-            <div>
-                <label for="password" class="block font-medium text-gray-700">Nueva Contraseña (opcional)</label>
-                <input type="password" name="password" id="password"
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Nueva Contraseña (opcional) -->
+                <div>
+                    <label for="password" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Nueva Contraseña (opcional)
+                    </label>
+                    <input type="password" name="password" id="password"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <label for="password_confirmation" class="block font-medium text-gray-700">Confirmar Nueva Contraseña</label>
-                <input type="password" name="password_confirmation" id="password_confirmation"
-                       class="mt-1 block w-full border-gray-300 rounded-md">
-            </div>
+                <!-- Confirmar Nueva Contraseña -->
+                <div>
+                    <label for="password_confirmation" class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Confirmar Nueva Contraseña
+                    </label>
+                    <input type="password" name="password_confirmation" id="password_confirmation"
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                </div>
 
-            <div>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                    Actualizar Usuario
-                </button>
-            </div>
-        </form>
+                <!-- Botón -->
+                <div class="text-center">
+                    <button type="submit" class="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition">
+                        Actualizar Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </x-layouts.app>
