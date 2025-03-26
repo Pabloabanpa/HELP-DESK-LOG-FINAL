@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Solicitud;
 
 class Atencion extends Model
 {
     use HasFactory;
+    protected $table = 'atenciones';
 
     protected $fillable = [
         'solicitud_id',
@@ -17,9 +19,10 @@ class Atencion extends Model
         'fecha_fin',
     ];
 
-    // Cada atención pertenece a una solicitud
+    // Relación: una atención pertenece a una solicitud
     public function solicitud()
     {
-        return $this->belongsTo(Solicitud::class);
+        return $this->belongsTo(Solicitud::class, 'solicitud_id');
     }
+
 }
