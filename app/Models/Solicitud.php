@@ -1,16 +1,17 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
-use App\Models\atenciones;
-use App\Models\anotaciones;
+use App\Models\Atencion;
+use App\Models\Anotacion;
 
 class Solicitud extends Model
 {
     use HasFactory;
+
+    protected $table = 'solicitudes';
 
     protected $fillable = [
         'solicitante',
@@ -20,14 +21,12 @@ class Solicitud extends Model
         'estado',
     ];
 
-    // Relación con el usuario que solicitó
-    public function solicitanteUsuario()
+    public function solicitanteUser()
     {
         return $this->belongsTo(User::class, 'solicitante');
     }
 
-    // Relación con el técnico asignado
-    public function tecnicoUsuario()
+    public function tecnicoUser()
     {
         return $this->belongsTo(User::class, 'tecnico');
     }

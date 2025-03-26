@@ -21,8 +21,8 @@
                     <flux:navlist.item icon="users" :href="route('admin.user.index')"
                         :current="request()->routeIs('admin.user.index')" wire:navigate>{{ __('Usuarios') }}</flux:navlist.item>
 
-                    <flux:navlist.item icon="clipboard-document" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Solicitudes') }}</flux:navlist.item>
+                    <flux:navlist.item icon="clipboard-document" :href="route('admin.solicitud.index')"
+                        :current="request()->routeIs('admin.solicitud.index')" wire:navigate>{{ __('Solicitudes') }}</flux:navlist.item>
 
                     <flux:navlist.item icon="wrench-screwdriver" :href="route('dashboard')"
                         :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Atenciones') }}</flux:navlist.item>
