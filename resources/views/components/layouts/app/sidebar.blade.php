@@ -24,11 +24,11 @@
                     <flux:navlist.item icon="clipboard-document" :href="route('admin.solicitud.index')"
                         :current="request()->routeIs('admin.solicitud.index')" wire:navigate>{{ __('Solicitudes') }}</flux:navlist.item>
 
-                    <flux:navlist.item icon="wrench-screwdriver" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Atenciones') }}</flux:navlist.item>
+                    <flux:navlist.item icon="wrench-screwdriver" :href="route('admin.atencion.index')"
+                        :current="request()->routeIs('admin.atencion.index')" wire:navigate>{{ __('Atenciones') }}</flux:navlist.item>
 
-                    <flux:navlist.item icon="pencil-square" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Anotaciones') }}</flux:navlist.item>
+                    <flux:navlist.item icon="pencil-square" :href="route('admin.anotacion.index')"
+                        :current="request()->routeIs('admin.anotacion.index')" wire:navigate>{{ __('Anotaciones') }}</flux:navlist.item>
 
                     <flux:navlist.item icon="building-office-2" :href="route('dashboard')"
                         :current="request()->routeIs('dashboard')" wire:navigate>
