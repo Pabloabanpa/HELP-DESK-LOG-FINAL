@@ -13,7 +13,7 @@ class AtencionController extends Controller
     public function index()
     {
         $userId = auth()->user()->id;
-        // Se filtran las atenciones a partir de la solicitud cuyo campo 'tecnico' coincide con el usuario actual
+
         $atenciones = Atencion::with('solicitud')
             ->whereHas('solicitud', function ($query) use ($userId) {
                 $query->where('tecnico', $userId);
@@ -103,5 +103,19 @@ class AtencionController extends Controller
         $atencion->delete();
 
         return redirect()->route('admin.atencion.index')->with('success', 'Atención eliminada exitosamente.');
+    }
+
+    // Nuevo método: Muestra todas las anotaciones correspondientes a una atención
+    public function anotaciones(Atencion $atencion)
+    {
+        // Se verifica que la solicitud asociada a la atención pertenezca al técnico actual
+        if ($atencion->solicitud->tecnico != auth()->user()->id) {
+            abort(403, 'No autorizado');
+        }
+
+        // Se obtiene el listado de anotaciones asociadas a la atención
+        $anotaciones = $atencion->anotaciones; // Asegúrate de tener la relación "anotaciones" en el modelo Atencion
+
+        return view('admin.atencion.anotaciones', compact('atencion', 'anotaciones'));
     }
 }

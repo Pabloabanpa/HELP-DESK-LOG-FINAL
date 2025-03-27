@@ -39,6 +39,14 @@
                             <td class="px-4 py-2">{{ $atencion->fecha_inicio ? \Carbon\Carbon::parse($atencion->fecha_inicio)->format('d/m/Y H:i') : 'N/A' }}</td>
                             <td class="px-4 py-2">{{ $atencion->fecha_fin ? \Carbon\Carbon::parse($atencion->fecha_fin)->format('d/m/Y H:i') : 'N/A' }}</td>
                             <td class="px-4 py-2 flex space-x-2">
+                                <!-- Botón para ver Anotaciones -->
+                                <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" class="flex items-center text-indigo-600 hover:text-indigo-800">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M15 8a3 3 0 01-3 3H6v2h6a5 5 0 000-10H6v2h6a3 3 0 013 3z" />
+                                    </svg>
+                                    Ver Anotaciones
+                                </a>
+                                <!-- Botón para editar -->
                                 <a href="{{ route('admin.atencion.edit', $atencion) }}" class="flex items-center text-blue-600 hover:text-blue-800">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M17.414 2.586a2 2 0 010 2.828l-1.586 1.586-2.828-2.828 1.586-1.586a2 2 0 012.828 0z" />
@@ -46,6 +54,7 @@
                                     </svg>
                                     Editar
                                 </a>
+                                <!-- Botón para eliminar -->
                                 <form action="{{ route('admin.atencion.destroy', $atencion) }}" method="POST" class="flex items-center">
                                     @csrf
                                     @method('DELETE')

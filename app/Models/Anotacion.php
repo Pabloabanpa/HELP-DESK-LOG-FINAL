@@ -9,20 +9,28 @@ class Anotacion extends Model
 {
     use HasFactory;
 
+    // Especificar la tabla en la base de datos, si es necesario.
+    protected $table = 'anotaciones';
+
+    // Campos asignables
     protected $fillable = [
-        'solicitud_id',
+        'atencion_id',
         'tecnico_id',
         'descripcion',
         'material_usado',
     ];
 
-    // Cada anotación pertenece a una solicitud
-    public function solicitud()
+    /**
+     * Relación: Una anotación pertenece a una atención.
+     */
+    public function atencion()
     {
-        return $this->belongsTo(Solicitud::class);
+        return $this->belongsTo(Atencion::class);
     }
 
-    // Relación con el técnico que hizo la anotación
+    /**
+     * Relación: Una anotación pertenece a un técnico (usuario).
+     */
     public function tecnico()
     {
         return $this->belongsTo(User::class, 'tecnico_id');

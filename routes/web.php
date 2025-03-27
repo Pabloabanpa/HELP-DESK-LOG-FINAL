@@ -7,6 +7,7 @@ use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\AtencionController;
 use App\Http\Controllers\ApiUserSyncController;
 use App\Http\Controllers\ArchivoController;
+use App\Http\Controllers\admin\AnotacionController;
 
 // RUTAS DE ADMINISTRADOR
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -18,6 +19,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // CRUD de Atenciones (solo para técnicos, se filtrarán en el controlador)
     Route::resource('atencion', AtencionController::class);
+    // CRUD para anotaciones
+    Route::resource('anotacion', AnotacionController::class);
+    // Ruta para mostrar las anotaciones de una atención
+    Route::get('atencion/{atencion}/anotaciones', [AtencionController::class, 'anotaciones'])
+    ->name('atencion.anotaciones');
+
 });
 
 // Ruta para servir archivos (para solicitudes, si es necesario)

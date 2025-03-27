@@ -25,4 +25,12 @@ class Atencion extends Model
         return $this->belongsTo(Solicitud::class, 'solicitud_id');
     }
 
+    // En app/Models/Atencion.php
+    public function anotaciones()
+    {
+        return $this->hasMany(\App\Models\Anotacion::class, 'atencion_id');
+    }
+
+
+
 }
