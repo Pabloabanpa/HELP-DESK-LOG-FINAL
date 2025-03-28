@@ -12,9 +12,9 @@
             </a>
         </div>
         <!-- Tabla de Atenciones -->
-        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
                         <th class="px-4 py-3 text-left">Solicitud</th>
                         <th class="px-4 py-3 text-left">Descripción</th>
@@ -26,18 +26,22 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($atenciones as $atencion)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                            <td class="px-4 py-2">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
                                 @if($atencion->solicitud)
                                     {{ $atencion->solicitud->id }} - {{ Str::limit($atencion->solicitud->descripcion, 30) }}
                                 @else
                                     N/A
                                 @endif
                             </td>
-                            <td class="px-4 py-2">{{ $atencion->descripcion }}</td>
-                            <td class="px-4 py-2 capitalize">{{ $atencion->estado }}</td>
-                            <td class="px-4 py-2">{{ $atencion->fecha_inicio ? \Carbon\Carbon::parse($atencion->fecha_inicio)->format('d/m/Y H:i') : 'N/A' }}</td>
-                            <td class="px-4 py-2">{{ $atencion->fecha_fin ? \Carbon\Carbon::parse($atencion->fecha_fin)->format('d/m/Y H:i') : 'N/A' }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $atencion->descripcion }}</td>
+                            <td class="px-4 py-2 capitalize text-gray-900 dark:text-gray-100">{{ $atencion->estado }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $atencion->fecha_inicio ? \Carbon\Carbon::parse($atencion->fecha_inicio)->format('d/m/Y H:i') : 'N/A' }}
+                            </td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $atencion->fecha_fin ? \Carbon\Carbon::parse($atencion->fecha_fin)->format('d/m/Y H:i') : 'N/A' }}
+                            </td>
                             <td class="px-4 py-2 flex space-x-2">
                                 <!-- Botón para ver Anotaciones -->
                                 <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" class="flex items-center text-indigo-600 hover:text-indigo-800">

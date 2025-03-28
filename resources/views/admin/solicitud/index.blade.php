@@ -22,9 +22,9 @@
         </div>
 
         <!-- Tabla de solicitudes -->
-        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
                         <th class="px-4 py-3 text-left">Solicitante</th>
                         <th class="px-4 py-3 text-left">Técnico</th>
@@ -37,8 +37,10 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($solicitudes as $solicitud)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                            <td class="px-4 py-2">{{ $solicitud->solicitanteUser->name }}</td>
-                            <td class="px-4 py-2">{{ $solicitud->tecnicoUser ? $solicitud->tecnicoUser->name : 'Sin asignar' }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $solicitud->solicitanteUser->name }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $solicitud->tecnicoUser ? $solicitud->tecnicoUser->name : 'Sin asignar' }}
+                            </td>
                             <td class="px-4 py-2">
                                 @if($solicitud->archivo)
                                     <a href="{{ route('archivo.mostrar', ['archivo' => $solicitud->archivo]) }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
@@ -50,8 +52,8 @@
                                     <span class="text-sm text-gray-500">N/A</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-2">{{ $solicitud->descripcion }}</td>
-                            <td class="px-4 py-2 capitalize">{{ $solicitud->estado }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $solicitud->descripcion }}</td>
+                            <td class="px-4 py-2 capitalize text-gray-900 dark:text-gray-100">{{ $solicitud->estado }}</td>
                             <td class="px-4 py-2 flex space-x-2">
                                 <!-- Botón Editar -->
                                 <a href="{{ route('admin.solicitud.edit', $solicitud) }}"

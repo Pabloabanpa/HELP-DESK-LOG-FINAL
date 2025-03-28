@@ -11,8 +11,9 @@
                 Nueva Anotación
             </a>
         </div>
-        <!-- Tabla de Anotaciones -->
-        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+
+        <!-- Contenedor de la tabla -->
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                     <tr>
@@ -26,16 +27,16 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($anotaciones as $anotacion)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
                                 @if($anotacion->atencion)
                                     {{ $anotacion->atencion->id }} - {{ $anotacion->atencion->descripcion ?? 'N/A' }}
                                 @else
                                     N/A
                                 @endif
                             </td>
-                            <td class="px-4 py-2">{{ Str::limit($anotacion->descripcion, 50) }}</td>
-                            <td class="px-4 py-2">{{ Str::limit($anotacion->material_usado, 50) }}</td>
-                            <td class="px-4 py-2">{{ $anotacion->created_at->format('d/m/Y H:i') }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ Str::limit($anotacion->descripcion, 50) }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ Str::limit($anotacion->material_usado, 50) }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $anotacion->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-4 py-2 flex space-x-2">
                                 <a href="{{ route('admin.anotacion.edit', $anotacion) }}" class="flex items-center text-blue-600 hover:text-blue-800">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -60,6 +61,7 @@
                 </tbody>
             </table>
         </div>
+
         <!-- Paginación -->
         <div class="mt-6">
             {{ $anotaciones->links() }}
