@@ -90,6 +90,23 @@
                            class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
                 </div>
 
+                <!-- Roles -->
+                <div class="mb-4">
+                    <label class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Roles
+                    </label>
+                    <div class="mt-2">
+                        @foreach($roles as $role)
+                            <label class="inline-flex items-center mr-4">
+                                <input type="checkbox" name="roles[]" value="{{ $role->id }}"
+                                       {{ $user->hasRole($role->name) ? 'checked' : '' }}
+                                       class="form-checkbox h-5 w-5 text-indigo-600">
+                                <span class="ml-2 text-gray-700 dark:text-gray-300">{{ $role->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 <!-- Botón -->
                 <div class="text-center">
                     <button type="submit" class="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition">
