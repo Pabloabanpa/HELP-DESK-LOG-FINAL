@@ -12,14 +12,10 @@ class UserSeeder extends Seeder
     {
         // Usuario administrador por defecto
         User::create([
-            'name' => 'Pablo',
+            'name' => 'admin',
             'email' => 'admin@demo.com',
-            'password' => Hash::make('password'),
-            'cargo' => 'Administrador',
-            'oficina' => 'Sistemas',
-            'ci' => '12345678',
-            'celular' => '77777777',
-            'fecha_nacimiento' => '1990-01-01',
+            'password' => Hash::make('admin'),
+
         ]);
 
         // Otros usuarios aleatorios

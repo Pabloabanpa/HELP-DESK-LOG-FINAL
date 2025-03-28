@@ -11,6 +11,7 @@
             </div>
             <!-- Buscador -->
             <div class="mt-4 md:mt-0 flex items-center space-x-2">
+
                 <form id="searchForm" class="relative">
                     <input type="text" id="userSearchInput" name="search" placeholder="Buscar usuarios..."
                            value="{{ request('search') }}"
@@ -21,10 +22,13 @@
                         </svg>
                     </div>
                 </form>
+
                 <button type="submit" form="searchForm" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     Buscar
                 </button>
+
             </div>
+            
         </div>
 
         <!-- Botones de acciones -->
