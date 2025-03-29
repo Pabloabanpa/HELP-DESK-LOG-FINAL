@@ -25,22 +25,22 @@ class SolicitudController extends Controller
 
     public function store(Request $request)
     {
-        // Validación
+        // Validación, agregando la prioridad como campo opcional de tipo string
         $request->validate([
             'tecnico'       => 'nullable|exists:users,id',
             'equipo_id'     => 'nullable|string',
             'archivo'       => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'descripcion'   => 'nullable|string',
+            'prioridad'     => 'nullable|string', // Validación para prioridad (puedes ajustar la regla según tus requerimientos)
         ]);
 
         $data = $request->all();
         // Asigna el solicitante del registro al usuario autenticado
         $data['solicitante'] = auth()->user()->id;
 
-        // Si se marcó el checkbox para subir archivo, procesa la carga
+        // Procesa la carga del archivo si se marcó el checkbox
         if ($request->has('upload_file')) {
             if ($request->hasFile('archivo')) {
-                // Guarda el archivo en la carpeta "Solicitudes" (con S mayúscula) en el disco 'public'
                 $path = $request->file('archivo')->store('Solicitudes', 'public');
                 $data['archivo'] = $path;
             }
@@ -55,6 +55,7 @@ class SolicitudController extends Controller
 
         return redirect()->route('admin.solicitud.index')->with('success', 'Solicitud creada exitosamente.');
     }
+
 
     public function show(Solicitud $solicitud)
     {
@@ -74,11 +75,12 @@ class SolicitudController extends Controller
             'equipo_id'     => 'nullable|string',
             'archivo'       => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'descripcion'   => 'nullable|string',
+            'prioridad'     => 'nullable|string', // Validación para prioridad
         ]);
 
         $data = $request->all();
 
-        // Si se marcó checkbox para subir archivo, procesa la carga y anula el código de equipo
+        // Procesa la carga del archivo si se marcó el checkbox para subir archivo
         if ($request->has('upload_file')) {
             if ($request->hasFile('archivo')) {
                 $path = $request->file('archivo')->store('Solicitudes', 'public');
@@ -86,7 +88,7 @@ class SolicitudController extends Controller
             }
             $data['equipo_id'] = null;
         } else {
-            // Si no se sube archivo, se mantiene el código de equipo y se conserva el archivo actual
+            // Si no se sube archivo, se conserva el archivo actual
             $data['archivo'] = $solicitud->archivo;
         }
 
@@ -94,6 +96,7 @@ class SolicitudController extends Controller
 
         return redirect()->route('admin.solicitud.index')->with('success', 'Solicitud actualizada exitosamente.');
     }
+
 
     public function destroy(Solicitud $solicitud)
     {

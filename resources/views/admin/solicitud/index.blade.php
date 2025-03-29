@@ -21,7 +21,45 @@
             </div>
         </div>
 
-        <!-- Tabla de solicitudes -->
+        @foreach($solicitudes as $solicitud)
+            @php
+                // Asignamos clases según el estado (ajusta los valores según tu preferencia)
+                switch($solicitud->estado) {
+                    case 'pendiente':
+                        $estadoClasses = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'en proceso':
+                        $estadoClasses = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'finalizada':
+                        $estadoClasses = 'bg-green-100 text-green-800';
+                        break;
+                    case 'cancelada':
+                        $estadoClasses = 'bg-red-100 text-red-800';
+                        break;
+                    default:
+                        $estadoClasses = 'bg-gray-100 text-gray-800';
+                        break;
+                }
+                // Para prioridad, supongamos que los valores son "alta", "media" o "baja"
+                switch($solicitud->prioridad) {
+                    case 'alta':
+                        $prioridadClasses = 'bg-red-100 text-red-800';
+                        break;
+                    case 'media':
+                        $prioridadClasses = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'baja':
+                        $prioridadClasses = 'bg-green-100 text-green-800';
+                        break;
+                    default:
+                        $prioridadClasses = 'bg-gray-100 text-gray-800';
+                        break;
+                }
+            @endphp
+        @endforeach
+
+        <!-- Tabla de Solicitudes -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
@@ -31,6 +69,8 @@
                         <th class="px-4 py-3 text-left">Equipo / Archivo</th>
                         <th class="px-4 py-3 text-left">Descripción</th>
                         <th class="px-4 py-3 text-left">Estado</th>
+                        <th class="px-4 py-3 text-left">Prioridad</th>
+                        <th class="px-4 py-3 text-left">Atenciones</th>
                         <th class="px-4 py-3 text-left">Acciones</th>
                     </tr>
                 </thead>
@@ -53,7 +93,31 @@
                                 @endif
                             </td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $solicitud->descripcion }}</td>
-                            <td class="px-4 py-2 capitalize text-gray-900 dark:text-gray-100">{{ $solicitud->estado }}</td>
+                            <td class="px-4 py-2">
+                                <span class="inline-block px-2 py-1 text-xs font-semibold rounded {{ $estadoClasses }}">
+                                    {{ $solicitud->estado }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2">
+                                <span class="inline-block px-2 py-1 text-xs font-semibold rounded {{ $prioridadClasses }}">
+                                    {{ $solicitud->prioridad ?? 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2">
+                                @if($solicitud->atenciones->isNotEmpty())
+                                    <ul class="list-disc list-inside">
+                                        @foreach($solicitud->atenciones as $atencion)
+                                            <li class="truncate">
+                                                <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" class="text-blue-600 hover:underline">
+                                                    {{ $atencion->id }} - {{ Str::limit($atencion->descripcion, 30) }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-sm text-gray-500">Sin atenciones</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-2 flex space-x-2">
                                 <!-- Botón Editar -->
                                 <a href="{{ route('admin.solicitud.edit', $solicitud) }}"
@@ -68,8 +132,7 @@
                                 <form action="{{ route('admin.solicitud.destroy', $solicitud) }}" method="POST" class="flex items-center">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="flex items-center text-red-600 hover:text-red-800"
-                                            onclick="return confirm('¿Estás seguro de eliminar esta solicitud?')">
+                                    <button type="submit" class="flex items-center text-red-600 hover:text-red-800" onclick="return confirm('¿Estás seguro de eliminar esta solicitud?')">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7 4H4a1 1 0 000 2h1v10a2 2 0 002 2h6a2 2 0 002-2V6h1a1 1 0 100-2h-3l-.106-.447A1 1 0 0011 2H9zM7 6v10a1 1 0 001 1h4a1 1 0 001-1V6H7z" clip-rule="evenodd" />
                                         </svg>

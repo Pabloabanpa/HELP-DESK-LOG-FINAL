@@ -19,6 +19,8 @@ class Solicitud extends Model
         'descripcion',
         'archivo',
         'estado',
+        'prioridad', 
+
     ];
 
     public function solicitanteUser()

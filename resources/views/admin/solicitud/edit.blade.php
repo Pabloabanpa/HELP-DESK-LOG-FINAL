@@ -64,6 +64,23 @@
                 </select>
             </div>
 
+            <!-- Prioridad -->
+            <div>
+                <label for="prioridad" class="block font-medium text-gray-700 dark:text-gray-300">Prioridad</label>
+                <select name="prioridad" id="prioridad"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">-- Seleccione la prioridad --</option>
+                    <option value="alta" {{ old('prioridad', $solicitud->prioridad) == 'alta' ? 'selected' : '' }}>Alta</option>
+                    <option value="media" {{ old('prioridad', $solicitud->prioridad) == 'media' ? 'selected' : '' }}>Media</option>
+                    <option value="baja" {{ old('prioridad', $solicitud->prioridad) == 'baja' ? 'selected' : '' }}>Baja</option>
+                </select>
+                @error('prioridad')
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
+
+            <!-- Botón -->
             <div class="text-center">
                 <button type="submit" class="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition">
                     Actualizar Solicitud

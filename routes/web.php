@@ -8,6 +8,7 @@ use App\Http\Controllers\admin\AtencionController;
 use App\Http\Controllers\ApiUserSyncController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\admin\AnotacionController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // RUTAS DE ADMINISTRADOR
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -51,5 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
+
+
+
 
 require __DIR__.'/auth.php';
