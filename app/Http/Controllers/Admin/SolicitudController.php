@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Solicitud;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Spatie\Permission\Models\Role;
 
 class SolicitudController extends Controller
 {
@@ -19,7 +21,7 @@ class SolicitudController extends Controller
     public function create()
     {
         // Obtener todos los usuarios para asignar como técnicos
-        $tecnicos = User::all();
+        $tecnicos = User::role('tecnico')->get();
         return view('admin.solicitud.create', compact('tecnicos'));
     }
 
@@ -103,4 +105,27 @@ class SolicitudController extends Controller
         $solicitud->delete();
         return redirect()->route('admin.solicitud.index')->with('success', 'Solicitud eliminada.');
     }
+
+
+    public function mostrar($archivo)
+    {
+        $path = storage_path('app/public/' . $archivo);
+
+        if (!File::exists($path)) {
+            abort(404, 'Archivo no encontrado.');
+        }
+
+        return response()->file($path);
+    }
+
+    public function rechazar(Solicitud $solicitud, Request $request)
+    {
+        // Actualiza el estado de la solicitud a "pendiente reasignacion"
+        $solicitud->update([
+            'estado' => 'pendiente reasignacion'
+        ]);
+
+        return redirect()->back()->with('info', 'La solicitud ha sido rechazada. La secretaria podrá asignar un nuevo técnico.');
+    }
+
 }

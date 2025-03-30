@@ -19,7 +19,8 @@ class Solicitud extends Model
         'descripcion',
         'archivo',
         'estado',
-        'prioridad', 
+        'prioridad',
+        'tipo_problema',
 
     ];
 

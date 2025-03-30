@@ -23,7 +23,7 @@
 
         @foreach($solicitudes as $solicitud)
             @php
-                // Asignamos clases según el estado (ajusta los valores según tu preferencia)
+                // Clases de badge para el estado
                 switch($solicitud->estado) {
                     case 'pendiente':
                         $estadoClasses = 'bg-yellow-100 text-yellow-800';
@@ -41,7 +41,7 @@
                         $estadoClasses = 'bg-gray-100 text-gray-800';
                         break;
                 }
-                // Para prioridad, supongamos que los valores son "alta", "media" o "baja"
+                // Clases de badge para la prioridad (ajusta según tus requerimientos)
                 switch($solicitud->prioridad) {
                     case 'alta':
                         $prioridadClasses = 'bg-red-100 text-red-800';
@@ -67,6 +67,7 @@
                         <th class="px-4 py-3 text-left">Solicitante</th>
                         <th class="px-4 py-3 text-left">Técnico</th>
                         <th class="px-4 py-3 text-left">Equipo / Archivo</th>
+                        
                         <th class="px-4 py-3 text-left">Descripción</th>
                         <th class="px-4 py-3 text-left">Estado</th>
                         <th class="px-4 py-3 text-left">Prioridad</th>
@@ -108,7 +109,7 @@
                                     <ul class="list-disc list-inside">
                                         @foreach($solicitud->atenciones as $atencion)
                                             <li class="truncate">
-                                                <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" class="text-blue-600 hover:underline">
+                                                <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" target="_blank" class="text-blue-600 hover:underline">
                                                     {{ $atencion->id }} - {{ Str::limit($atencion->descripcion, 30) }}
                                                 </a>
                                             </li>

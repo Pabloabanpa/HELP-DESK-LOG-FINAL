@@ -26,6 +26,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('atencion/{atencion}/anotaciones', [AtencionController::class, 'anotaciones'])
     ->name('atencion.anotaciones');
 
+    Route::post('solicitudes/{solicitud}/rechazar', [SolicitudController::class, 'rechazar'])->name('solicitud.rechazar');
+
+
 });
 
 // Ruta para servir archivos (para solicitudes, si es necesario)
