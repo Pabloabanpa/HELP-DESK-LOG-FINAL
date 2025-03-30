@@ -14,12 +14,12 @@
 
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Opciones')" class="grid">
-                    @can('admin.home')
+
                         <flux:navlist.item icon="home" :href="route('dashboard')"
                             :current="request()->routeIs('dashboard')" wire:navigate>
                             {{ __('Dashboard') }}
                         </flux:navlist.item>
-                    @endcan
+
 
                     @can('admin.user.index')
                         <flux:navlist.item icon="users" :href="route('admin.user.index')"
@@ -96,7 +96,7 @@
                     <flux:menu.separator />
 
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        
+
                         @csrf
                         <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
                             {{ __('Cerrar Sesión ') }}
