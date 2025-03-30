@@ -14,31 +14,51 @@
 
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Opciones')" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    @can('admin.home')
+                        <flux:navlist.item icon="home" :href="route('dashboard')"
+                            :current="request()->routeIs('dashboard')" wire:navigate>
+                            {{ __('Dashboard') }}
+                        </flux:navlist.item>
+                    @endcan
 
-                    <!-- Actualizamos la ruta a admin.user.index -->
-                    <flux:navlist.item icon="users" :href="route('admin.user.index')"
-                        :current="request()->routeIs('admin.user.index')" wire:navigate>{{ __('Usuarios') }}</flux:navlist.item>
+                    @can('admin.user.index')
+                        <flux:navlist.item icon="users" :href="route('admin.user.index')"
+                            :current="request()->routeIs('admin.user.index')" wire:navigate>
+                            {{ __('Usuarios') }}
+                        </flux:navlist.item>
+                    @endcan
 
-                    <flux:navlist.item icon="clipboard-document" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Solicitudes') }}</flux:navlist.item>
+                    @can('admin.solicitud.index')
+                        <flux:navlist.item icon="clipboard-document" :href="route('admin.solicitud.index')"
+                            :current="request()->routeIs('admin.solicitud.index')" wire:navigate>
+                            {{ __('Solicitudes') }}
+                        </flux:navlist.item>
+                    @endcan
 
-                    <flux:navlist.item icon="wrench-screwdriver" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Atenciones') }}</flux:navlist.item>
+                    @can('admin.atencion.index')
+                        <flux:navlist.item icon="wrench-screwdriver" :href="route('admin.atencion.index')"
+                            :current="request()->routeIs('admin.atencion.index')" wire:navigate>
+                            {{ __('Atenciones') }}
+                        </flux:navlist.item>
+                    @endcan
 
-                    <flux:navlist.item icon="pencil-square" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Anotaciones') }}</flux:navlist.item>
+                    @can('admin.anotacion.index')
+                        <flux:navlist.item icon="pencil-square" :href="route('admin.anotacion.index')"
+                            :current="request()->routeIs('admin.anotacion.index')" wire:navigate>
+                            {{ __('Anotaciones') }}
+                        </flux:navlist.item>
+                    @endcan
 
-                    <flux:navlist.item icon="building-office-2" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Oficinas') }}
-                    </flux:navlist.item>
 
-                    <flux:navlist.item icon="document" :href="route('dashboard')"
-                        :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Reportes') }}</flux:navlist.item>
+                    @can('admin.reportes.index')
+                        <flux:navlist.item icon="document" :href="route('admin.reportes.index')"
+                            :current="request()->routeIs('admin.reportes.index')" wire:navigate>
+                            {{ __('Reportes') }}
+                        </flux:navlist.item>
+                    @endcan
                 </flux:navlist.group>
             </flux:navlist>
+
 
             <flux:spacer />
 
@@ -76,6 +96,7 @@
                     <flux:menu.separator />
 
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        
                         @csrf
                         <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
                             {{ __('Cerrar Sesión ') }}

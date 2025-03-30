@@ -14,9 +14,9 @@
                 <form id="searchForm" class="relative">
                     <input type="text" id="userSearchInput" name="search" placeholder="Buscar usuarios..."
                            value="{{ request('search') }}"
-                           class="pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
+                           class="pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M16.65 16.65A7.5 7.5 0 1016.65 2.5a7.5 7.5 0 000 14.15z" />
                         </svg>
                     </div>
@@ -51,9 +51,9 @@
         </div>
 
         <!-- Tabla de usuarios -->
-        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm text-left">
-                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
                         <th class="px-4 py-3">Nombre</th>
                         <th class="px-4 py-3">Email</th>
@@ -67,14 +67,14 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($users as $user)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                            <td class="px-4 py-2">{{ $user->name }}</td>
-                            <td class="px-4 py-2">{{ $user->email }}</td>
-                            <td class="px-4 py-2">{{ $user->cargo }}</td>
-                            <td class="px-4 py-2">{{ $user->ci }}</td>
-                            <td class="px-4 py-2">{{ $user->celular }}</td>
-                            <td class="px-4 py-2">{{ $user->oficina }}</td>
-                            <td class="px-4 py-2">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->name }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->email }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->cargo }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->ci }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->celular }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->oficina }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
                                 {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d/m/Y') }}
                             </td>
                             <td class="px-4 py-2 flex space-x-2">
@@ -87,12 +87,11 @@
                                     </svg>
                                     Editar
                                 </a>
-                                <!-- Botón Eliminar con icono de basurero -->
+                                <!-- Botón Eliminar -->
                                 <form action="{{ route('admin.user.destroy', $user) }}" method="POST" class="flex items-center">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="flex items-center text-red-600 hover:text-red-800"
-                                            onclick="return confirm('¿Estás seguro de eliminar este usuario?')">
+                                    <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este usuario?')" class="flex items-center text-red-600 hover:text-red-800">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7 4H4a1 1 0 000 2h1v10a2 2 0 002 2h6a2 2 0 002-2V6h1a1 1 0 100-2h-3l-.106-.447A1 1 0 0011 2H9zM7 6v10a1 1 0 001 1h4a1 1 0 001-1V6H7z" clip-rule="evenodd" />
                                         </svg>

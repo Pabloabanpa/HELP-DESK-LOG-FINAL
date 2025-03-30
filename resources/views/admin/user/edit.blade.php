@@ -1,6 +1,6 @@
 <x-layouts.app :title="__('Editar Usuario')">
     <div class="max-w-3xl mx-auto py-8">
-        <div class="bg-white dark:bg-zinc-800 shadow-lg rounded-lg p-6">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
             <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">
                 Editar Usuario
             </h1>
@@ -14,7 +14,7 @@
                         Nombre
                     </label>
                     <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Email -->
@@ -23,7 +23,7 @@
                         Email
                     </label>
                     <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Cargo -->
@@ -32,7 +32,7 @@
                         Cargo
                     </label>
                     <input type="text" name="cargo" id="cargo" value="{{ old('cargo', $user->cargo) }}"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Oficina -->
@@ -41,7 +41,7 @@
                         Oficina
                     </label>
                     <input type="text" name="oficina" id="oficina" value="{{ old('oficina', $user->oficina) }}"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- CI -->
@@ -50,7 +50,7 @@
                         CI
                     </label>
                     <input type="text" name="ci" id="ci" value="{{ old('ci', $user->ci) }}"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Celular -->
@@ -59,7 +59,7 @@
                         Celular
                     </label>
                     <input type="text" name="celular" id="celular" value="{{ old('celular', $user->celular) }}"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Fecha de Nacimiento -->
@@ -69,7 +69,7 @@
                     </label>
                     <input type="date" name="fecha_nacimiento" id="fecha_nacimiento"
                            value="{{ old('fecha_nacimiento', $user->fecha_nacimiento ? $user->fecha_nacimiento->format('Y-m-d') : '') }}"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Nueva Contraseña (opcional) -->
@@ -78,7 +78,7 @@
                         Nueva Contraseña (opcional)
                     </label>
                     <input type="password" name="password" id="password"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <!-- Confirmar Nueva Contraseña -->
@@ -87,7 +87,24 @@
                         Confirmar Nueva Contraseña
                     </label>
                     <input type="password" name="password_confirmation" id="password_confirmation"
-                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-500">
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <!-- Roles -->
+                <div class="mb-4">
+                    <label class="block text-lg font-medium text-gray-700 dark:text-gray-300">
+                        Roles
+                    </label>
+                    <div class="mt-2">
+                        @foreach($roles as $role)
+                            <label class="inline-flex items-center mr-4">
+                                <input type="checkbox" name="roles[]" value="{{ $role->id }}"
+                                       {{ $user->hasRole($role->name) ? 'checked' : '' }}
+                                       class="form-checkbox h-5 w-5 text-indigo-600">
+                                <span class="ml-2 text-gray-700 dark:text-gray-300">{{ $role->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
 
                 <!-- Botón -->

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -77,7 +78,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('admin.user.edit', compact('user'));
+        $roles = Role::all();
+        return view('admin.user.edit', compact('user', 'roles'));
     }
 
     /**
@@ -94,6 +96,8 @@ class UserController extends Controller
             'celular'           => 'nullable|string',
             'fecha_nacimiento'  => 'nullable|date',
         ]);
+        $user->roles()->sync($request->roles);
+        // Si se envía un nuevo rol, lo asigna al usuario
 
         // Actualiza la contraseña solo si se envía
         if ($request->filled('password')) {

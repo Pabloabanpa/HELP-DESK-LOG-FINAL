@@ -29,6 +29,8 @@ return new class extends Migration
             $table->text('descripcion')->nullable();
             $table->string('archivo')->nullable(); // ruta o nombre del archivo adjunto
             $table->string('estado')->default('pendiente');
+            $table->string('prioridad')->default('media'); // prioridad de la solicitud (baja, media, alta)
+            $table->string('tipo_problema');
 
             $table->timestamps();
         });
