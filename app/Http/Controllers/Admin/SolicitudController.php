@@ -11,6 +11,14 @@ use Spatie\Permission\Models\Role;
 
 class SolicitudController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('can:admin.solicitud.index')->only(['index']);
+        $this->middleware('can:admin.solicitud.create')->only(['create', 'store']);
+        $this->middleware('can:admin.solicitud.edit')->only(['edit', 'update']);
+        $this->middleware('can:admin.solicitud.destroy')->only(['destroy']);
+    }
     public function index()
     {
         $user = auth()->user();
