@@ -3,6 +3,7 @@
         <!-- Encabezado -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Mis Anotaciones</h1>
+            @can('admin.anotacion.create')
             <a href="{{ route('admin.anotacion.create') }}" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
                 <!-- Ícono de agregar -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -10,6 +11,7 @@
                 </svg>
                 Nueva Anotación
             </a>
+            @endcan
         </div>
 
         <!-- Contenedor de la tabla -->
@@ -38,6 +40,8 @@
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ Str::limit($anotacion->material_usado, 50) }}</td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $anotacion->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-4 py-2 flex space-x-2">
+
+                                @can('admin.anotacion.edit')
                                 <a href="{{ route('admin.anotacion.edit', $anotacion) }}" class="flex items-center text-blue-600 hover:text-blue-800">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M17.414 2.586a2 2 0 010 2.828l-1.586 1.586-2.828-2.828 1.586-1.586a2 2 0 012.828 0z" />
@@ -45,6 +49,9 @@
                                     </svg>
                                     Editar
                                 </a>
+                                @endcan
+
+                                @can('admin.anotacion.destroy')
                                 <form action="{{ route('admin.anotacion.destroy', $anotacion) }}" method="POST" class="flex items-center">
                                     @csrf
                                     @method('DELETE')
@@ -55,6 +62,7 @@
                                         Eliminar
                                     </button>
                                 </form>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

@@ -3,6 +3,7 @@
         <!-- Encabezado -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Mis Atenciones</h1>
+            @can('admin.atencion.create')
             <a href="{{ route('admin.atencion.create') }}" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
                 <!-- Ícono de agregar -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -10,6 +11,8 @@
                 </svg>
                 Nueva Atención
             </a>
+            @endcan
+
         </div>
         <!-- Tabla de Atenciones -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -51,6 +54,7 @@
                                     Ver Anotaciones
                                 </a>
                                 <!-- Botón para editar -->
+                                @can('admin.atencion.edit')
                                 <a href="{{ route('admin.atencion.edit', $atencion) }}" class="flex items-center text-blue-600 hover:text-blue-800">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M17.414 2.586a2 2 0 010 2.828l-1.586 1.586-2.828-2.828 1.586-1.586a2 2 0 012.828 0z" />
@@ -58,7 +62,9 @@
                                     </svg>
                                     Editar
                                 </a>
+                                @endcan
                                 <!-- Botón para eliminar -->
+                                @can('admin.atencion.destroy')
                                 <form action="{{ route('admin.atencion.destroy', $atencion) }}" method="POST" class="flex items-center">
                                     @csrf
                                     @method('DELETE')
@@ -69,6 +75,7 @@
                                         Eliminar
                                     </button>
                                 </form>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
