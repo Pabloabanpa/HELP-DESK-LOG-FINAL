@@ -14,7 +14,13 @@ class AnotacionController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
         $query = Anotacion::query();
+
+        // Si el usuario NO es admin ni secretaria, se muestran solo las anotaciones que realizó
+        if (!$user->hasRole('admin') && !$user->hasRole('secretaria')) {
+            $query->where('tecnico_id', $user->id);
+        }
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -42,9 +48,6 @@ class AnotacionController extends Controller
         return view('admin.anotacion.create', compact('atenciones'));
     }
 
-    /**
-     * Guarda una nueva anotación en la base de datos.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -68,17 +71,20 @@ class AnotacionController extends Controller
             ->with('success', 'Anotación registrada exitosamente.');
     }
 
-    /**
-     * Muestra el detalle de una anotación.
-     */
+
     public function show(Anotacion $anotacion)
     {
+        $user = auth()->user();
+        // Permitir ver la anotación solo si:
+        // - El usuario es admin o secretaria, o
+        // - El usuario es el técnico que realizó la anotación.
+        if (!$user->hasRole('admin') && !$user->hasRole('secretaria') && $anotacion->tecnico_id != $user->id) {
+            abort(403, 'No tienes permiso para ver esta anotación.');
+        }
         return view('admin.anotacion.show', compact('anotacion'));
     }
 
-    /**
-     * Muestra el formulario para editar una anotación.
-     */
+
     public function edit(Anotacion $anotacion)
     {
         // Solo se permite editar si, a través de la solicitud, el técnico asignado es el usuario logueado.

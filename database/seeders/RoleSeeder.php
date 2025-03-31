@@ -34,10 +34,10 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'admin.solicitud.edit'])->syncRoles([$role1, $role4]);
         Permission::create(['name' => 'admin.solicitud.destroy'])->syncRoles([$role1, $role4]);
         //PERMISOS PARA ATENCIONES
-        Permission::create(['name' => 'admin.atencion.index'])->syncRoles([$role1, $role2]);
+        Permission::create(['name' => 'admin.atencion.index'])->syncRoles([$role1, $role2, $role4]);
         Permission::create(['name' => 'admin.atencion.create'])->syncRoles([$role1, $role2]);
         Permission::create(['name' => 'admin.atencion.edit'])->syncRoles([$role1, $role2, $role4]);
-        Permission::create(['name' => 'admin.atencion.destroy'])->syncRoles([$role1, $role2, $role4]);
+        Permission::create(['name' => 'admin.atencion.destroy'])->syncRoles([$role1, $role2]);
         //PERMISOS PARA ANOTACIONES
         Permission::create(['name' => 'admin.anotacion.index'])->syncRoles([$role1, $role2]);
         Permission::create(['name' => 'admin.anotacion.create'])->syncRoles([$role1, $role2]);

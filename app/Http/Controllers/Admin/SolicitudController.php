@@ -13,8 +13,30 @@ class SolicitudController extends Controller
 {
     public function index()
     {
-        // Cargar relaciones y paginar
-        $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser'])->latest()->paginate(10);
+        $user = auth()->user();
+
+        if ($user->hasRole('admin') || $user->hasRole('secretaria')) {
+            // Admin y secretaria ven todas las solicitudes
+            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones'])
+                ->latest()
+                ->paginate(10);
+        } elseif ($user->hasRole('tecnico')) {
+            // El técnico ve solo las solicitudes asignadas a él
+            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones'])
+                ->where('tecnico', $user->id)
+                ->latest()
+                ->paginate(10);
+        } elseif ($user->hasRole('solicitante')) {
+            // El solicitante ve solo las solicitudes que él registró
+            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones'])
+                ->where('solicitante', $user->id)
+                ->latest()
+                ->paginate(10);
+        } else {
+            // Para otros roles, se puede retornar un listado vacío o implementar otra lógica
+            $solicitudes = collect([]);
+        }
+
         return view('admin.solicitud.index', compact('solicitudes'));
     }
 
