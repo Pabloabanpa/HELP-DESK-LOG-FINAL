@@ -9,17 +9,23 @@ use Illuminate\Http\Request;
 
 class AtencionController extends Controller
 {
-    // Muestra las atenciones de las solicitudes asignadas al técnico autenticado
+    // Muestra el listado de atenciones
     public function index()
     {
-        $userId = auth()->user()->id;
+        $user = auth()->user();
 
-        $atenciones = Atencion::with('solicitud')
-            ->whereHas('solicitud', function ($query) use ($userId) {
-                $query->where('tecnico', $userId);
-            })
-            ->latest()
-            ->paginate(10);
+        if ($user->hasRole('admin') || $user->hasRole('secretaria')) {
+            // El administrador y la secretaria ven TODAS las atenciones
+            $atenciones = Atencion::with('solicitud')->latest()->paginate(10);
+        } elseif ($user->hasRole('tecnico')) {
+            // El técnico ve solo las atenciones de las solicitudes asignadas a él
+            $atenciones = Atencion::with('solicitud')
+                ->whereHas('solicitud', function ($query) use ($user) {
+                    $query->where('tecnico', $user->id);
+                })->latest()->paginate(10);
+        } else {
+            $atenciones = collect([]);
+        }
 
         return view('admin.atencion.index', compact('atenciones'));
     }
@@ -27,95 +33,153 @@ class AtencionController extends Controller
     // Muestra el formulario para crear una nueva atención
     public function create()
     {
-        // Se muestran las solicitudes que están asignadas al técnico actual o sin asignar
-        $solicitudes = Solicitud::where(function ($query) {
-            $query->where('tecnico', auth()->user()->id)
-                  ->orWhereNull('tecnico');
-        })->get();
+        $user = auth()->user();
 
-        return view('admin.atencion.create', compact('solicitudes'));
+        // Solo el técnico (y el administrador) pueden iniciar una atención
+        if ($user->hasRole('tecnico') || $user->hasRole('admin')) {
+            if ($user->hasRole('tecnico')) {
+                // Se muestran las solicitudes asignadas al técnico o sin asignar
+                $solicitudes = Solicitud::where(function ($query) use ($user) {
+                    $query->where('tecnico', $user->id)
+                          ->orWhereNull('tecnico');
+                })->get();
+            } else {
+                // El administrador puede ver todas las solicitudes
+                $solicitudes = Solicitud::all();
+            }
+            return view('admin.atencion.create', compact('solicitudes'));
+        }
+
+        abort(403, 'No autorizado');
     }
 
     // Almacena una nueva atención
     public function store(Request $request)
     {
-        $request->validate([
-            'solicitud_id' => 'required|exists:solicitudes,id',
-            'descripcion'  => 'required|string',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
-        ]);
+        $user = auth()->user();
 
-        $data = $request->all();
-        // Por defecto, se asigna el estado "en proceso"
-        $data['estado'] = 'en proceso';
+        if ($user->hasRole('tecnico') || $user->hasRole('admin')) {
+            $request->validate([
+                'solicitud_id' => 'required|exists:solicitudes,id',
+                'descripcion'  => 'required|string',
+                'fecha_inicio' => 'nullable|date',
+                'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
+            ]);
 
-        Atencion::create($data);
+            $data = $request->all();
+            // Se asigna el estado por defecto "en proceso"
+            $data['estado'] = 'en proceso';
+            Atencion::create($data);
 
-        return redirect()->route('admin.atencion.index')->with('success', 'Atención creada exitosamente.');
+            return redirect()->route('admin.atencion.index')
+                ->with('success', 'Atención creada exitosamente.');
+        }
+
+        abort(403, 'No autorizado');
     }
 
     // Muestra una atención en detalle
     public function show(Atencion $atencion)
     {
-        // Se verifica que la solicitud asociada a la atención pertenezca al técnico actual
-        if ($atencion->solicitud->tecnico != auth()->user()->id) {
-            abort(403, 'No autorizado');
+        $user = auth()->user();
+
+        // El admin y la secretaria pueden ver cualquier atención;
+        // el técnico solo puede ver las atenciones asignadas a él.
+        if ($user->hasRole('admin') || $user->hasRole('secretaria') ||
+            ($user->hasRole('tecnico') && $atencion->solicitud->tecnico == $user->id)) {
+            return view('admin.atencion.show', compact('atencion'));
         }
-        return view('admin.atencion.show', compact('atencion'));
+
+        abort(403, 'No autorizado');
     }
 
     // Muestra el formulario para editar una atención
     public function edit(Atencion $atencion)
     {
-        if ($atencion->solicitud->tecnico != auth()->user()->id) {
-            abort(403, 'No autorizado');
+        $user = auth()->user();
+
+        // El admin puede editar cualquier atención.
+        // El técnico solo si es el asignado.
+        // La secretaria podrá acceder al formulario para cambiar el estado a "finalizada".
+        if ($user->hasRole('admin') ||
+            ($user->hasRole('tecnico') && $atencion->solicitud->tecnico == $user->id) ||
+            $user->hasRole('secretaria')) {
+            return view('admin.atencion.edit', compact('atencion'));
         }
-        return view('admin.atencion.edit', compact('atencion'));
+
+        abort(403, 'No autorizado');
     }
 
     // Actualiza la atención
     public function update(Request $request, Atencion $atencion)
     {
-        if ($atencion->solicitud->tecnico != auth()->user()->id) {
-            abort(403, 'No autorizado');
+        $user = auth()->user();
+
+        if ($user->hasRole('admin')) {
+            // El administrador puede actualizar todos los campos
+            $request->validate([
+                'descripcion'  => 'required|string',
+                'estado'       => 'required|string',
+                'fecha_inicio' => 'nullable|date',
+                'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
+            ]);
+
+            $atencion->update($request->all());
+            return redirect()->route('admin.atencion.index')
+                ->with('success', 'Atención actualizada exitosamente.');
+        } elseif ($user->hasRole('tecnico') && $atencion->solicitud->tecnico == $user->id) {
+            // El técnico puede actualizar todos los campos de su atención
+            $request->validate([
+                'descripcion'  => 'required|string',
+                'estado'       => 'required|string',
+                'fecha_inicio' => 'nullable|date',
+                'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
+            ]);
+
+            $atencion->update($request->all());
+            return redirect()->route('admin.atencion.index')
+                ->with('success', 'Atención actualizada exitosamente.');
+        } elseif ($user->hasRole('secretaria')) {
+            // La secretaria solo puede cambiar el estado a "finalizada"
+            $request->validate([
+                'estado' => 'required|string|in:finalizada',
+            ]);
+
+            $atencion->update(['estado' => $request->estado]);
+            return redirect()->route('admin.atencion.index')
+                ->with('success', 'Atención marcada como finalizada.');
         }
 
-        $request->validate([
-            'descripcion'  => 'required|string',
-            'estado'       => 'nullable|string',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
-        ]);
-
-        $atencion->update($request->all());
-
-        return redirect()->route('admin.atencion.index')->with('success', 'Atención actualizada exitosamente.');
+        abort(403, 'No autorizado');
     }
 
-    // Elimina la atención
+    // Elimina una atención
     public function destroy(Atencion $atencion)
     {
-        if ($atencion->solicitud->tecnico != auth()->user()->id) {
-            abort(403, 'No autorizado');
+        $user = auth()->user();
+
+        // Solo el admin o el técnico asignado pueden eliminar la atención
+        if ($user->hasRole('admin') ||
+            ($user->hasRole('tecnico') && $atencion->solicitud->tecnico == $user->id)) {
+            $atencion->delete();
+            return redirect()->route('admin.atencion.index')
+                ->with('success', 'Atención eliminada exitosamente.');
         }
 
-        $atencion->delete();
-
-        return redirect()->route('admin.atencion.index')->with('success', 'Atención eliminada exitosamente.');
+        abort(403, 'No autorizado');
     }
 
-    // Nuevo método: Muestra todas las anotaciones correspondientes a una atención
+    // Muestra las anotaciones correspondientes a una atención
     public function anotaciones(Atencion $atencion)
     {
-        // Se verifica que la solicitud asociada a la atención pertenezca al técnico actual
-        if ($atencion->solicitud->tecnico != auth()->user()->id) {
-            abort(403, 'No autorizado');
+        $user = auth()->user();
+
+        if ($user->hasRole('admin') || $user->hasRole('secretaria') ||
+            ($user->hasRole('tecnico') && $atencion->solicitud->tecnico == $user->id)) {
+            $anotaciones = $atencion->anotaciones;
+            return view('admin.atencion.anotaciones', compact('atencion', 'anotaciones'));
         }
 
-        // Se obtiene el listado de anotaciones asociadas a la atención
-        $anotaciones = $atencion->anotaciones; // Asegúrate de tener la relación "anotaciones" en el modelo Atencion
-
-        return view('admin.atencion.anotaciones', compact('atencion', 'anotaciones'));
+        abort(403, 'No autorizado');
     }
 }

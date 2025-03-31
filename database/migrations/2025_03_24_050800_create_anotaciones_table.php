@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
 
             // Relación con la solicitud
-            $table->unsignedBigInteger('solicitud_id');
-            $table->foreign('solicitud_id')->references('id')->on('solicitudes')->onDelete('cascade');
+            $table->unsignedBigInteger('atencion_id');
+            $table->foreign('atencion_id')->references('id')->on('atenciones')->onDelete('cascade');
 
             // Relación con el técnico que hace la anotación
             $table->unsignedBigInteger('tecnico_id')->nullable();

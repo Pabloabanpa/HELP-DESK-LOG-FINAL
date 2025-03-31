@@ -3,6 +3,7 @@
         <!-- Encabezado -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Mis Atenciones</h1>
+            @can('admin.atencion.create')
             <a href="{{ route('admin.atencion.create') }}" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
                 <!-- Ícono de agregar -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -10,11 +11,13 @@
                 </svg>
                 Nueva Atención
             </a>
+            @endcan
+
         </div>
         <!-- Tabla de Atenciones -->
-        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
                         <th class="px-4 py-3 text-left">Solicitud</th>
                         <th class="px-4 py-3 text-left">Descripción</th>
@@ -26,18 +29,22 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($atenciones as $atencion)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                            <td class="px-4 py-2">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
                                 @if($atencion->solicitud)
                                     {{ $atencion->solicitud->id }} - {{ Str::limit($atencion->solicitud->descripcion, 30) }}
                                 @else
                                     N/A
                                 @endif
                             </td>
-                            <td class="px-4 py-2">{{ $atencion->descripcion }}</td>
-                            <td class="px-4 py-2 capitalize">{{ $atencion->estado }}</td>
-                            <td class="px-4 py-2">{{ $atencion->fecha_inicio ? \Carbon\Carbon::parse($atencion->fecha_inicio)->format('d/m/Y H:i') : 'N/A' }}</td>
-                            <td class="px-4 py-2">{{ $atencion->fecha_fin ? \Carbon\Carbon::parse($atencion->fecha_fin)->format('d/m/Y H:i') : 'N/A' }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $atencion->descripcion }}</td>
+                            <td class="px-4 py-2 capitalize text-gray-900 dark:text-gray-100">{{ $atencion->estado }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $atencion->fecha_inicio ? \Carbon\Carbon::parse($atencion->fecha_inicio)->format('d/m/Y H:i') : 'N/A' }}
+                            </td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $atencion->fecha_fin ? \Carbon\Carbon::parse($atencion->fecha_fin)->format('d/m/Y H:i') : 'N/A' }}
+                            </td>
                             <td class="px-4 py-2 flex space-x-2">
                                 <!-- Botón para ver Anotaciones -->
                                 <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" class="flex items-center text-indigo-600 hover:text-indigo-800">
@@ -47,6 +54,7 @@
                                     Ver Anotaciones
                                 </a>
                                 <!-- Botón para editar -->
+                                @can('admin.atencion.edit')
                                 <a href="{{ route('admin.atencion.edit', $atencion) }}" class="flex items-center text-blue-600 hover:text-blue-800">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M17.414 2.586a2 2 0 010 2.828l-1.586 1.586-2.828-2.828 1.586-1.586a2 2 0 012.828 0z" />
@@ -54,7 +62,9 @@
                                     </svg>
                                     Editar
                                 </a>
+                                @endcan
                                 <!-- Botón para eliminar -->
+                                @can('admin.atencion.destroy')
                                 <form action="{{ route('admin.atencion.destroy', $atencion) }}" method="POST" class="flex items-center">
                                     @csrf
                                     @method('DELETE')
@@ -65,6 +75,7 @@
                                         Eliminar
                                     </button>
                                 </form>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach

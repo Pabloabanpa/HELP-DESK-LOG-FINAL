@@ -1,22 +1,25 @@
 <x-layouts.app :title="'Detalle de Atención #'.$atencion->id">
     <div class="max-w-7xl mx-auto px-4 py-6">
         <!-- Detalles de la atención -->
-        <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Detalle de Atención #{{ $atencion->id }}</h1>
+        <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+            Detalle de Atención #{{ $atencion->id }}
+        </h1>
         <div class="bg-white dark:bg-gray-800 shadow rounded p-6">
-            <p><strong>Solicitud:</strong>
+            <p class="text-gray-900 dark:text-gray-100">
+                <strong>Solicitud:</strong>
                 @if($atencion->solicitud)
                     {{ $atencion->solicitud->id }} - {{ Str::limit($atencion->solicitud->descripcion, 30) }}
                 @else
                     N/A
                 @endif
             </p>
-            <p><strong>Descripción:</strong> {{ $atencion->descripcion }}</p>
-            <p><strong>Estado:</strong> {{ $atencion->estado }}</p>
-            <p>
+            <p class="text-gray-900 dark:text-gray-100"><strong>Descripción:</strong> {{ $atencion->descripcion }}</p>
+            <p class="text-gray-900 dark:text-gray-100"><strong>Estado:</strong> {{ $atencion->estado }}</p>
+            <p class="text-gray-900 dark:text-gray-100">
                 <strong>Fecha Inicio:</strong>
                 {{ $atencion->fecha_inicio ? \Carbon\Carbon::parse($atencion->fecha_inicio)->format('d/m/Y H:i') : 'N/A' }}
             </p>
-            <p>
+            <p class="text-gray-900 dark:text-gray-100">
                 <strong>Fecha Fin:</strong>
                 {{ $atencion->fecha_fin ? \Carbon\Carbon::parse($atencion->fecha_fin)->format('d/m/Y H:i') : 'N/A' }}
             </p>
@@ -28,9 +31,9 @@
             @if($atencion->anotaciones->isEmpty())
                 <p class="text-gray-600 dark:text-gray-300">No hay anotaciones para esta atención.</p>
             @else
-                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                        <thead class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                        <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                             <tr>
                                 <th class="px-4 py-3 text-left">Descripción</th>
                                 <th class="px-4 py-3 text-left">Material Usado</th>
@@ -39,10 +42,10 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                             @foreach($atencion->anotaciones as $anotacion)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                                    <td class="px-4 py-2">{{ Str::limit($anotacion->descripcion, 50) }}</td>
-                                    <td class="px-4 py-2">{{ Str::limit($anotacion->material_usado, 50) }}</td>
-                                    <td class="px-4 py-2">{{ $anotacion->created_at->format('d/m/Y H:i') }}</td>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                    <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ Str::limit($anotacion->descripcion, 50) }}</td>
+                                    <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ Str::limit($anotacion->material_usado, 50) }}</td>
+                                    <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $anotacion->created_at->format('d/m/Y H:i') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -59,21 +62,29 @@
                 <!-- Se envía el ID de la atención de forma oculta -->
                 <input type="hidden" name="atencion_id" value="{{ $atencion->id }}">
                 <div class="mb-4">
-                    <label for="descripcion" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Descripción</label>
-                    <textarea name="descripcion" id="descripcion" rows="3" class="w-full border-gray-300 rounded-md shadow-sm"></textarea>
+                    <label for="descripcion" class="block font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        Descripción
+                    </label>
+                    <textarea name="descripcion" id="descripcion" rows="3"
+                              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                     @error('descripcion')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="mb-4">
-                    <label for="material_usado" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Material Usado</label>
-                    <textarea name="material_usado" id="material_usado" rows="2" class="w-full border-gray-300 rounded-md shadow-sm"></textarea>
+                    <label for="material_usado" class="block font-bold text-gray-700 dark:text-gray-300 mb-2">
+                        Material Usado
+                    </label>
+                    <textarea name="material_usado" id="material_usado" rows="2"
+                              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                     @error('material_usado')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
                 <div class="flex items-center justify-end">
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Agregar Anotación</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                        Agregar Anotación
+                    </button>
                 </div>
             </form>
         </div>
