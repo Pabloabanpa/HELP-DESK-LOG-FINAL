@@ -9,9 +9,15 @@ use Illuminate\Http\Request;
 
 class AnotacionController extends Controller
 {
-    /**
-     * Muestra la lista de anotaciones.
-     */
+
+    public function __construct()
+    {
+        $this->middleware('can:admin.anotacion.index')->only(['index']);
+        $this->middleware('can:admin.anotacion.create')->only(['create', 'store']);
+        $this->middleware('can:admin.anotacion.edit')->only(['edit', 'update']);
+        $this->middleware('can:admin.anotacion.destroy')->only(['destroy']);
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();

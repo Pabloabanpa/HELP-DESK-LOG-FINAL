@@ -10,9 +10,14 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    /**
-     * Muestra la lista de usuarios.
-     */
+    public function __construct()
+    {
+        $this->middleware('can:admin.user.index')->only(['index']);
+        $this->middleware('can:admin.user.create')->only(['create', 'store']);
+        $this->middleware('can:admin.user.edit')->only(['edit', 'update']);
+        $this->middleware('can:admin.user.destroy')->only(['destroy']);
+    }
+
     public function index(Request $request)
     {
         $query = User::query();

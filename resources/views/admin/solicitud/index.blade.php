@@ -11,18 +11,56 @@
             </div>
             <div class="mt-4 md:mt-0">
                 @can('admin.solicitud.create')
-                        <a href="{{ route('admin.solicitud.create') }}"
-                        class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
-                            <!-- Ícono de agregar -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                            </svg>
-                            Nueva Solicitud
-                        </a>
+                <a href="{{ route('admin.solicitud.create') }}"
+                   class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
+                    <!-- Ícono de agregar -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Nueva Solicitud
+                </a>
                 @endcan
 
             </div>
         </div>
+
+        @foreach($solicitudes as $solicitud)
+            @php
+                // Clases de badge para el estado
+                switch($solicitud->estado) {
+                    case 'pendiente':
+                        $estadoClasses = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'en proceso':
+                        $estadoClasses = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'finalizada':
+                        $estadoClasses = 'bg-green-100 text-green-800';
+                        break;
+                    case 'cancelada':
+                        $estadoClasses = 'bg-red-100 text-red-800';
+                        break;
+                    default:
+                        $estadoClasses = 'bg-gray-100 text-gray-800';
+                        break;
+                }
+                // Clases de badge para la prioridad (ajusta según tus requerimientos)
+                switch($solicitud->prioridad) {
+                    case 'alta':
+                        $prioridadClasses = 'bg-red-100 text-red-800';
+                        break;
+                    case 'media':
+                        $prioridadClasses = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'baja':
+                        $prioridadClasses = 'bg-green-100 text-green-800';
+                        break;
+                    default:
+                        $prioridadClasses = 'bg-gray-100 text-gray-800';
+                        break;
+                }
+            @endphp
+        @endforeach
 
         <!-- Tabla de Solicitudes -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -32,6 +70,7 @@
                         <th class="px-4 py-3 text-left">Solicitante</th>
                         <th class="px-4 py-3 text-left">Técnico</th>
                         <th class="px-4 py-3 text-left">Equipo / Archivo</th>
+
                         <th class="px-4 py-3 text-left">Descripción</th>
                         <th class="px-4 py-3 text-left">Estado</th>
                         <th class="px-4 py-3 text-left">Prioridad</th>
@@ -41,41 +80,6 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($solicitudes as $solicitud)
-                        @php
-                            // Clases para el estado
-                            switch($solicitud->estado) {
-                                case 'pendiente':
-                                    $estadoClasses = 'bg-yellow-100 text-yellow-800';
-                                    break;
-                                case 'en proceso':
-                                    $estadoClasses = 'bg-blue-100 text-blue-800';
-                                    break;
-                                case 'finalizada':
-                                    $estadoClasses = 'bg-green-100 text-green-800';
-                                    break;
-                                case 'cancelada':
-                                    $estadoClasses = 'bg-red-100 text-red-800';
-                                    break;
-                                default:
-                                    $estadoClasses = 'bg-gray-100 text-gray-800';
-                                    break;
-                            }
-                            // Clases para la prioridad
-                            switch($solicitud->prioridad) {
-                                case 'alta':
-                                    $prioridadClasses = 'bg-red-100 text-red-800';
-                                    break;
-                                case 'media':
-                                    $prioridadClasses = 'bg-yellow-100 text-yellow-800';
-                                    break;
-                                case 'baja':
-                                    $prioridadClasses = 'bg-green-100 text-green-800';
-                                    break;
-                                default:
-                                    $prioridadClasses = 'bg-gray-100 text-gray-800';
-                                    break;
-                            }
-                        @endphp
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $solicitud->solicitanteUser->name }}</td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
@@ -118,6 +122,7 @@
                                     <span class="text-sm text-gray-500">Sin atenciones</span>
                                 @endif
                             </td>
+
                             <td class="px-4 py-2 flex space-x-2">
                                 @can('admin.solicitud.edit')
                                 <a href="{{ route('admin.solicitud.edit', $solicitud) }}" class="flex items-center text-blue-600 hover:text-blue-800">
@@ -142,7 +147,21 @@
                                 </form>
                                 @endcan
 
+                                {{-- Botón de rechazar para el técnico asignado --}}
+                                @if(auth()->user()->hasRole('tecnico') && $solicitud->tecnico == auth()->user()->id && $solicitud->estado !== 'pendiente reasignacion')
+                                <form action="{{ route('admin.solicitud.rechazar', $solicitud) }}" method="POST" class="flex items-center">
+                                    @csrf
+                                    <button type="submit" onclick="return confirm('¿Estás seguro de rechazar esta solicitud?')" class="flex items-center text-orange-600 hover:text-orange-800">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Rechazar
+                                    </button>
+                                </form>
+                                @endif
                             </td>
+
+
                         </tr>
                     @endforeach
                 </tbody>

@@ -9,6 +9,14 @@ use Illuminate\Http\Request;
 
 class AtencionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:admin.atencion.index')->only(['index']);
+        $this->middleware('can:admin.atencion.create')->only(['create', 'store']);
+        $this->middleware('can:admin.atencion.edit')->only(['edit', 'update']);
+        $this->middleware('can:admin.atencion.destroy')->only(['destroy']);
+    }
+    
     // Muestra el listado de atenciones
     public function index()
     {
