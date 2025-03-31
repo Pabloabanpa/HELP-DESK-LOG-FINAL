@@ -142,12 +142,19 @@ class SolicitudController extends Controller
 
     public function rechazar(Solicitud $solicitud, Request $request)
     {
-        // Actualiza el estado de la solicitud a "pendiente reasignacion"
+        // Solo permite que el técnico asignado rechace la solicitud
+        if ($solicitud->tecnico != auth()->user()->id) {
+            abort(403, 'No autorizado');
+        }
+
+        // Actualizamos el estado y removemos el técnico asignado
         $solicitud->update([
-            'estado' => 'pendiente reasignacion'
+            'estado'   => 'pendiente reasignacion',
+            'tecnico'  => null,
         ]);
 
-        return redirect()->back()->with('info', 'La solicitud ha sido rechazada. La secretaria podrá asignar un nuevo técnico.');
+        return redirect()->back()->with('info', 'La solicitud ha sido rechazada. La secretaría podrá asignar un nuevo técnico.');
     }
+
 
 }
