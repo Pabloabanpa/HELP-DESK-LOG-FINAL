@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('oficina')->nullable();
             $table->string('ci')->nullable();
             $table->string('celular')->nullable();
+            $table->string('area')->default('soporte');
+            $table->string('estado')->default('activo');
             $table->date('fecha_nacimiento')->nullable();
         });
 

@@ -50,11 +50,12 @@ class SolicitudController extends Controller
 
     public function create()
     {
-        // Obtener todos los usuarios para asignar como técnicos
+        // Obtener todos los técnicos
         $tecnicos = User::role('tecnico')->get();
-        return view('admin.solicitud.create', compact('tecnicos'));
+        // Obtener todos los tipos de problema
+        $tipoProblemas = \App\Models\TipoProblema::all();
+        return view('admin.solicitud.create', compact('tecnicos', 'tipoProblemas'));
     }
-
     public function store(Request $request)
     {
         // Validación, agregando la prioridad como campo opcional de tipo string

@@ -28,6 +28,13 @@
                         </flux:navlist.item>
                     @endcan
 
+
+                    <flux:navlist.item icon="users" :href="route('admin.tipo_problema.index')"
+                        :current="request()->routeIs('admin.tipo_problema.index')" wire:navigate>
+                        {{ __('Tipos de Problemas') }}
+                    </flux:navlist.item>
+
+
                     @can('admin.solicitud.index')
                         <flux:navlist.item icon="clipboard-document" :href="route('admin.solicitud.index')"
                             :current="request()->routeIs('admin.solicitud.index')" wire:navigate>

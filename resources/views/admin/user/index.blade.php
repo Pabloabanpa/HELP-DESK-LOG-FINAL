@@ -61,6 +61,8 @@
                         <th class="px-4 py-3">CI</th>
                         <th class="px-4 py-3">Celular</th>
                         <th class="px-4 py-3">Oficina</th>
+                        <th class="px-4 py-3">Área</th>
+                        <th class="px-4 py-3">Estado</th>
                         <th class="px-4 py-3">Fecha Nac.</th>
                         <th class="px-4 py-3">Acciones</th>
                     </tr>
@@ -74,6 +76,18 @@
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->ci }}</td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->celular }}</td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->oficina }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->area  }}</td>
+                            <td class="px-4 py-2">
+                                @if($user->estado == 'activo')
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
+                                        Activo
+                                    </span>
+                                @else
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
+                                        Inactivo
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
                                 {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d/m/Y') }}
                             </td>

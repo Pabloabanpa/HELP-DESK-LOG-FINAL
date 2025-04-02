@@ -60,6 +60,7 @@ class UserController extends Controller
             'oficina'           => 'nullable|string',
             'ci'                => 'nullable|string',
             'celular'           => 'nullable|string',
+            'area'           => 'nullable|string',
             'fecha_nacimiento'  => 'nullable|date',
         ]);
 
@@ -99,6 +100,8 @@ class UserController extends Controller
             'oficina'           => 'nullable|string',
             'ci'                => 'nullable|string',
             'celular'           => 'nullable|string',
+            'area'           => 'nullable|string',
+
             'fecha_nacimiento'  => 'nullable|date',
         ]);
         $user->roles()->sync($request->roles);

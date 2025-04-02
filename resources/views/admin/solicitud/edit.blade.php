@@ -1,6 +1,12 @@
 <x-layouts.app :title="__('Editar Solicitud')">
-     <div class="max-w-7xl mx-auto px-4 py-6"> <div class="flex flex-col lg:flex-row gap-6"> <!-- Columna izquierda: Formulario de Edición --> <div class="lg:w-2/3 p-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg"> <h1 class="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-white">Editar Solicitud</h1> <form action="{{ route('admin.solicitud.update', $solicitud) }}" method="POST" enctype="multipart/form-data" class="space-y-6"> @csrf @method('PUT')
-
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Columna izquierda: Formulario de Edición -->
+            <div class="lg:w-2/3 p-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
+                <h1 class="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-white">Editar Solicitud</h1>
+                <form action="{{ route('admin.solicitud.update', $solicitud) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
+                    @method('PUT')
 
                     <!-- Solicitante (solo lectura) -->
                     <div>
@@ -46,19 +52,17 @@
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
-                    <!-- Tipo de Problema -->
+                    <!-- Tipo de Problema (dinámico desde la tabla) -->
                     <div>
                         <label for="tipo_problema" class="block font-medium text-gray-700 dark:text-gray-300">Tipo de Problema</label>
                         <select name="tipo_problema" id="tipo_problema"
                                 class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">-- Seleccione un tipo de problema --</option>
-                            <option value="hardware" {{ old('tipo_problema', $solicitud->tipo_problema) == 'hardware' ? 'selected' : '' }}>Hardware (equipos, componentes, etc.)</option>
-                            <option value="software" {{ old('tipo_problema', $solicitud->tipo_problema) == 'software' ? 'selected' : '' }}>Software (aplicaciones, sistemas operativos, etc.)</option>
-                            <option value="red" {{ old('tipo_problema', $solicitud->tipo_problema) == 'red' ? 'selected' : '' }}>Red (conexiones, VPN, WiFi, etc.)</option>
-                            <option value="acceso" {{ old('tipo_problema', $solicitud->tipo_problema) == 'acceso' ? 'selected' : '' }}>Acceso y Autenticación (credenciales, permisos, etc.)</option>
-                            <option value="impresora" {{ old('tipo_problema', $solicitud->tipo_problema) == 'impresora' ? 'selected' : '' }}>Impresoras y Periféricos</option>
-                            <option value="seguridad" {{ old('tipo_problema', $solicitud->tipo_problema) == 'seguridad' ? 'selected' : '' }}>Seguridad (antivirus, malware, etc.)</option>
-                            <option value="otros" {{ old('tipo_problema', $solicitud->tipo_problema) == 'otros' ? 'selected' : '' }}>Otros</option>
+                            @foreach($tipoProblemas as $tipo)
+                                <option value="{{ $tipo->id }}" {{ old('tipo_problema', $solicitud->tipo_problema) == $tipo->id ? 'selected' : '' }}>
+                                    {{ $tipo->nombre }} - {{ $tipo->descripcion }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -105,28 +109,34 @@
                 </form>
             </div>
 
-            <!-- Columna derecha: Información de Técnicos y Solicitudes Asignadas -->
+            <!-- Columna derecha: Información de Técnicos y Solicitudes Asignadas agrupados por Área -->
             <div class="lg:w-1/3 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Técnicos y Solicitudes Asignadas</h2>
-                <ul class="divide-y divide-gray-200 dark:divide-gray-600">
-                    @foreach($tecnicos as $tecnico)
-                        @if($tecnico->hasRole('tecnico'))
-                            <li class="py-2">
-                                <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
-                                <ul class="ml-4 mt-1">
-                                    @foreach($tecnico->solicitudes as $solicitudAsignada)
-                                        <li class="text-sm text-gray-600 dark:text-gray-300">
-                                            #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
-                                        </li>
-                                    @endforeach
-                                    @if($tecnico->solicitudes->isEmpty())
-                                        <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
-                                    @endif
-                                </ul>
-                            </li>
-                        @endif
-                    @endforeach
-                </ul>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Técnicos por Área</h2>
+                @php
+                    $tecnicosPorArea = $tecnicos->groupBy('area');
+                @endphp
+                @foreach($tecnicosPorArea as $area => $tecnicosDelArea)
+                    <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mt-4">{{ $area }}</h3>
+                    <ul class="divide-y divide-gray-200 dark:divide-gray-600">
+                        @foreach($tecnicosDelArea as $tecnico)
+                            @if($tecnico->hasRole('tecnico'))
+                                <li class="py-2">
+                                    <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
+                                    <ul class="ml-4 mt-1">
+                                        @foreach($tecnico->solicitudes as $solicitudAsignada)
+                                            <li class="text-sm text-gray-600 dark:text-gray-300">
+                                                #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
+                                            </li>
+                                        @endforeach
+                                        @if($tecnico->solicitudes->isEmpty())
+                                            <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
+                                        @endif
+                                    </ul>
+                                </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                @endforeach
             </div>
         </div>
     </div>
@@ -145,4 +155,4 @@
             }
         }
     </script>
-    </x-layouts.app>
+</x-layouts.app>

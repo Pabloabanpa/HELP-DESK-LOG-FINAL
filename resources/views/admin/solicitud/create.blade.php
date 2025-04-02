@@ -16,6 +16,7 @@
                     </div>
 
                     <!-- Técnico -->
+                    @can('admin.solicitud.edit')
                     <div>
                         <label for="tecnico" class="block font-medium text-gray-700 dark:text-gray-300">Técnico Asignado</label>
                         <select name="tecnico" id="tecnico"
@@ -26,6 +27,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endcan
 
                     <!-- Código de Equipo / Archivo -->
                     <div id="equipoSection">
@@ -43,20 +45,18 @@
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
-                    <!-- Tipo de Problema -->
+                    <!-- Tipo de Problema (cargado desde la tabla) -->
                     <div>
                         <label for="tipo_problema" class="block font-medium text-gray-700 dark:text-gray-300">Tipo de Problema</label>
                         <select name="tipo_problema" id="tipo_problema"
-                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="">-- Seleccione un tipo de problema --</option>
-                            <option value="hardware">Hardware (equipos, componentes, etc.)</option>
-                            <option value="software">Software (aplicaciones, sistemas operativos, etc.)</option>
-                            <option value="red">Red (conexiones, VPN, WiFi, etc.)</option>
-                            <option value="acceso">Acceso y Autenticación (credenciales, permisos, etc.)</option>
-                            <option value="impresora">Impresoras y Periféricos</option>
-                            <option value="seguridad">Seguridad (antivirus, malware, etc.)</option>
-                            <option value="otros">Otros</option>
-                        </select>
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">-- Seleccione un tipo de problema --</option>
+                    @foreach($tipoProblemas as $tipo)
+                        <option value="{{ $tipo->id }}">
+                            {{ $tipo->nombre }} - {{ $tipo->descripcion }}
+                        </option>
+                    @endforeach
+                </select>
                     </div>
 
                     <!-- Descripción -->
@@ -67,6 +67,7 @@
                     </div>
 
                     <!-- Estado -->
+                    @can('admin.solicitud.edit')
                     <div>
                         <label for="estado" class="block font-medium text-gray-700 dark:text-gray-300">Estado</label>
                         <select name="estado" id="estado"
@@ -77,8 +78,10 @@
                             <option value="cancelada">Cancelada</option>
                         </select>
                     </div>
+                    @endcan
 
                     <!-- Prioridad -->
+                    @can('admin.solicitud.edit')
                     <div>
                         <label for="prioridad" class="block font-medium text-gray-700 dark:text-gray-300">Prioridad</label>
                         <select name="prioridad" id="prioridad"
@@ -92,6 +95,7 @@
                             <span class="text-red-600 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
                     <!-- Botón -->
                     <div class="text-center">
@@ -101,43 +105,77 @@
                     </div>
                 </form>
             </div>
-
-            <!-- Columna derecha: Información de Técnicos y Solicitudes Asignadas -->
+            @can('admin.solicitud.edit')
             <div class="lg:w-1/3 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Técnicos y Solicitudes Asignadas</h2>
-                <ul class="divide-y divide-gray-200 dark:divide-gray-600">
-                    @foreach($tecnicos as $tecnico)
-                        <li class="py-2">
-                            <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
-                            <ul class="ml-4 mt-1">
-                                @foreach($tecnico->solicitudes as $solicitud)
-                                    <li class="text-sm text-gray-600 dark:text-gray-300">
-                                        #{{ $solicitud->id }}: {{ Str::limit($solicitud->descripcion, 30) }}
-                                    </li>
-                                @endforeach
-                                @if($tecnico->solicitudes->isEmpty())
-                                    <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
-                                @endif
-                            </ul>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    </div>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Técnicos por Área</h2>
 
-    <script>
-        function toggleEquipoSection(){
-            var checkbox = document.getElementById('uploadCheckbox');
-            var fileSection = document.getElementById('fileSection');
-            var equipoSection = document.getElementById('equipoSection');
-            if(checkbox.checked){
-                fileSection.classList.remove('hidden');
-                equipoSection.classList.add('hidden');
-            } else {
-                fileSection.classList.add('hidden');
-                equipoSection.classList.remove('hidden');
-            }
-        }
-    </script>
+                <!-- Bloque para Soporte -->
+                <div class="mb-6">
+                    <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mb-2">Soporte</h3>
+                    @foreach($tecnicos as $tecnico)
+                        @if($tecnico->hasRole('tecnico') && strtolower($tecnico->area) == 'soporte')
+                            <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                                <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
+                                <ul class="ml-4 mt-1">
+                                    @foreach($tecnico->solicitudes as $solicitudAsignada)
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">
+                                            #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
+                                        </li>
+                                    @endforeach
+                                    @if($tecnico->solicitudes->isEmpty())
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <!-- Bloque para Redes -->
+                <div class="mb-6">
+                    <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mb-2">Redes</h3>
+                    @foreach($tecnicos as $tecnico)
+                        @if($tecnico->hasRole('tecnico') && strtolower($tecnico->area) == 'redes')
+                            <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                                <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
+                                <ul class="ml-4 mt-1">
+                                    @foreach($tecnico->solicitudes as $solicitudAsignada)
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">
+                                            #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
+                                        </li>
+                                    @endforeach
+                                    @if($tecnico->solicitudes->isEmpty())
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <!-- Bloque para Desarrollo -->
+                <div>
+                    <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mb-2">Desarrollo</h3>
+                    @foreach($tecnicos as $tecnico)
+                        @if($tecnico->hasRole('tecnico') && strtolower($tecnico->area) == 'desarrollo')
+                            <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                                <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
+                                <ul class="ml-4 mt-1">
+                                    @foreach($tecnico->solicitudes as $solicitudAsignada)
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">
+                                            #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
+                                        </li>
+                                    @endforeach
+                                    @if($tecnico->solicitudes->isEmpty())
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+            @endcan
+
+
 </x-layouts.app>

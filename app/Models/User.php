@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,7 @@ class User extends Authenticatable
         'celular',
         'oficina',
         'fecha_nacimiento',
+        'area', // Campo agregado para el área del usuario
     ];
 
     /**
@@ -44,12 +46,14 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'fecha_nacimiento'  => 'date',  // Asegura que se convierta a Carbon
+        'fecha_nacimiento'  => 'date',
         'password'          => 'hashed',
     ];
 
     /**
-     * Get the user's initials.
+     * Obtiene las iniciales del usuario.
+     *
+     * @return string
      */
     public function initials(): string
     {
@@ -59,8 +63,11 @@ class User extends Authenticatable
             ->implode('');
     }
 
+    /**
+     * Relación: Solicitudes asignadas al usuario (técnico).
+     */
     public function solicitudes()
-        {
-            return $this->hasMany(Solicitud::class, 'tecnico');
-        }
+    {
+        return $this->hasMany(Solicitud::class, 'tecnico');
+    }
 }

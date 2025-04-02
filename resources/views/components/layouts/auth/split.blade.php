@@ -9,7 +9,7 @@
                 <div class="absolute inset-0 bg-neutral-900"></div>
                 <a href="{{ route('home') }}" class="relative z-20 flex items-center text-lg font-medium" wire:navigate>
                     <span class="flex h-10 w-10 items-center justify-center rounded-md">
-                        <x-app-logo-icon class="mr-2 h-7 fill-current text-white" />
+                        <img src="{{ asset('images/logo-tarija.png') }}" alt="Logo" class="w-25 h-25 object-contain" />
                     </span>
                     {{ config('app.name', 'Laravel') }}
                 </a>
