@@ -60,16 +60,21 @@ class UserController extends Controller
             'oficina'           => 'nullable|string',
             'ci'                => 'nullable|string',
             'celular'           => 'nullable|string',
-            'area'           => 'nullable|string',
+            'area'              => 'nullable|string',
             'fecha_nacimiento'  => 'nullable|date',
         ]);
 
         $data['password'] = Hash::make($data['password']);
 
-        User::create($data);
+        // Crear el usuario
+        $user = User::create($data);
+
+        // Asignar el rol "solicitante" al nuevo usuario
+        $user->assignRole('solicitante');
 
         return redirect()->route('admin.user.index')->with('success', 'Usuario creado exitosamente.');
     }
+
 
     /**
      * Muestra los detalles de un usuario.
