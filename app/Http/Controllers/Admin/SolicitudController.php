@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use PDF;
 use App\Http\Controllers\Controller;
 use App\Models\Solicitud;
 use App\Models\User;
@@ -98,7 +99,8 @@ class SolicitudController extends Controller
     public function edit(Solicitud $solicitud)
     {
         $tecnicos = User::all();
-        return view('admin.solicitud.edit', compact('solicitud', 'tecnicos'));
+        $tipoProblemas = \App\Models\TipoProblema::all();
+        return view('admin.solicitud.edit', compact('solicitud', 'tecnicos', 'tipoProblemas'));
     }
 
     public function update(Request $request, Solicitud $solicitud)
@@ -163,6 +165,24 @@ class SolicitudController extends Controller
         ]);
 
         return redirect()->back()->with('info', 'La solicitud ha sido rechazada. La secretaría podrá asignar un nuevo técnico.');
+    }
+    public function report()
+    {
+        // Consultamos todas las solicitudes con sus relaciones y contamos atenciones y anotaciones
+        $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser'])
+                        ->withCount(['atenciones', 'anotaciones'])
+                        ->latest()
+                        ->get();
+
+        // Cargamos la vista 'reports.solicitudes' pasando la variable $solicitudes
+        $pdf = PDF::loadView('reports.solicitudes', compact('solicitudes'));
+
+        // Puedes ajustar opciones como tamaño de papel u orientación
+        // $pdf->setPaper('A4', 'landscape');
+
+        // Puedes retornar el PDF para ser visualizado en el navegador o para descarga
+        return $pdf->stream('reporte-solicitudes.pdf');
+        // Para forzar la descarga usa: return $pdf->download('reporte-solicitudes.pdf');
     }
 
 

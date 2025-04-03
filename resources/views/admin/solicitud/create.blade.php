@@ -30,16 +30,17 @@
                     @endcan
 
                     <!-- Código de Equipo / Archivo -->
-                    <div id="equipoSection">
+                    <div id="equipoSection" class="{{ old('upload_file') ? 'hidden' : '' }}">
                         <label for="equipo_id" class="block font-medium text-gray-700 dark:text-gray-300">Código de Equipo</label>
                         <input type="text" name="equipo_id" id="equipo_id"
+                               value="{{ old('equipo_id') }}"
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div class="flex items-center">
-                        <input type="checkbox" id="uploadCheckbox" name="upload_file" value="1" class="mr-2" onclick="toggleEquipoSection()">
+                        <input type="checkbox" id="uploadCheckbox" name="upload_file" value="1" class="mr-2" onclick="toggleEquipoSection()" {{ old('upload_file') ? 'checked' : '' }}>
                         <label for="uploadCheckbox" class="text-gray-700 dark:text-gray-300">No tengo código de equipo, subir archivo</label>
                     </div>
-                    <div id="fileSection" class="hidden">
+                    <div id="fileSection" class="{{ old('upload_file') ? '' : 'hidden' }}">
                         <label for="archivo" class="block font-medium text-gray-700 dark:text-gray-300">Archivo</label>
                         <input type="file" name="archivo" id="archivo"
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -49,21 +50,21 @@
                     <div>
                         <label for="tipo_problema" class="block font-medium text-gray-700 dark:text-gray-300">Tipo de Problema</label>
                         <select name="tipo_problema" id="tipo_problema"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="">-- Seleccione un tipo de problema --</option>
-                    @foreach($tipoProblemas as $tipo)
-                        <option value="{{ $tipo->id }}">
-                            {{ $tipo->nombre }} - {{ $tipo->descripcion }}
-                        </option>
-                    @endforeach
-                </select>
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">-- Seleccione un tipo de problema --</option>
+                            @foreach($tipoProblemas as $tipo)
+                                <option value="{{ $tipo->id }}">
+                                    {{ $tipo->nombre }} - {{ $tipo->descripcion }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <!-- Descripción -->
                     <div>
                         <label for="descripcion" class="block font-medium text-gray-700 dark:text-gray-300">Descripción</label>
                         <textarea name="descripcion" id="descripcion" rows="4"
-                                  class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                                  class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('descripcion') }}</textarea>
                     </div>
 
                     <!-- Estado -->
@@ -105,6 +106,7 @@
                     </div>
                 </form>
             </div>
+
             @can('admin.solicitud.edit')
             <div class="lg:w-1/3 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
                 <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Técnicos por Área</h2>
@@ -139,7 +141,7 @@
                             <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
                                 <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
                                 <ul class="ml-4 mt-1">
-                                    @foreach($tecnico->solicitudes as $solicitudAsignada)
+                                    @foreach($tecnicos as $solicitudAsignada)
                                         <li class="text-sm text-gray-600 dark:text-gray-300">
                                             #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
                                         </li>
@@ -161,7 +163,7 @@
                             <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
                                 <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
                                 <ul class="ml-4 mt-1">
-                                    @foreach($tecnico->solicitudes as $solicitudAsignada)
+                                    @foreach($tecnicos as $solicitudAsignada)
                                         <li class="text-sm text-gray-600 dark:text-gray-300">
                                             #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
                                         </li>
@@ -177,5 +179,27 @@
             </div>
             @endcan
 
+        </div>
+    </div>
 
+    <script>
+        function toggleEquipoSection(){
+            var checkbox = document.getElementById('uploadCheckbox');
+            var fileSection = document.getElementById('fileSection');
+            var equipoSection = document.getElementById('equipoSection');
+            if(checkbox.checked){
+                // Si se marca la casilla, se muestra la sección de archivo y se oculta el campo de código de equipo
+                fileSection.classList.remove('hidden');
+                equipoSection.classList.add('hidden');
+            } else {
+                fileSection.classList.add('hidden');
+                equipoSection.classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            // Ejecuta el toggle en la carga de la página para aplicar el estado si viene marcado
+            toggleEquipoSection();
+        });
+    </script>
 </x-layouts.app>

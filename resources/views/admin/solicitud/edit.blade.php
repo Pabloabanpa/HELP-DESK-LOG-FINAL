@@ -31,23 +31,32 @@
                         </select>
                     </div>
 
+                    @php
+                        // Si no hay código de equipo, se usará la carga de archivo
+                        $useArchivo = empty($solicitud->equipo_id);
+                    @endphp
                     <!-- Código de Equipo / Archivo -->
-                    <div id="equipoSection" class="{{ $solicitud->equipo_id ? '' : 'hidden' }}">
+                    <div id="equipoSection" class="{{ $useArchivo ? 'hidden' : '' }}">
                         <label for="equipo_id" class="block font-medium text-gray-700 dark:text-gray-300">Código de Equipo</label>
                         <input type="text" name="equipo_id" id="equipo_id" value="{{ old('equipo_id', $solicitud->equipo_id) }}"
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div class="flex items-center">
                         <input type="checkbox" id="uploadCheckbox" name="upload_file" value="1" class="mr-2" onclick="toggleEquipoSectionEdit()"
-                        {{ $solicitud->archivo ? 'checked' : '' }}>
+                        {{ $useArchivo ? 'checked' : '' }}>
                         <label for="uploadCheckbox" class="text-gray-700 dark:text-gray-300">No tengo código de equipo, subir archivo</label>
                     </div>
-                    <div id="fileSection" class="{{ $solicitud->archivo ? '' : 'hidden' }}">
-                        <label for="archivo" class="block font-medium text-gray-700 dark:text-gray-300">Archivo Actual</label>
-                        @if($solicitud->archivo)
+                    <div id="fileSection" class="{{ $useArchivo ? '' : 'hidden' }}">
+                        <label for="archivo" class="block font-medium text-gray-700 dark:text-gray-300">
+                            @if($solicitud->archivo)
+                                Archivo Actual
+                            @else
+                                Subir Archivo
+                            @endif
+                        </label>
+                        @if($solicitud->archivo && !$useArchivo)
                             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Archivo cargado: {{ $solicitud->archivo }}</p>
                         @endif
-                        <label for="archivo" class="block font-medium text-gray-700 dark:text-gray-300">Cambiar Archivo</label>
                         <input type="file" name="archivo" id="archivo"
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>

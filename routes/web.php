@@ -1,5 +1,6 @@
 <?php
 
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\Admin\SolicitudController;
@@ -35,6 +36,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Ruta para rechazar una solicitud (se usa 'solicitud' para mantener la consistencia)
     Route::post('solicitud/{solicitud}/rechazar', [SolicitudController::class, 'rechazar'])
         ->name('solicitud.rechazar');
+
+
 });
 
 // Ruta para servir archivos (para solicitudes, si es necesario)
@@ -64,5 +67,14 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
+
+Route::get('/pdf', function () {
+    $pdf = App::make('dompdf.wrapper');
+    $pdf->loadHTML('<h1>Hola pdf</h1>');
+    return $pdf->stream();
+});
+
+
+
 
 require __DIR__.'/auth.php';

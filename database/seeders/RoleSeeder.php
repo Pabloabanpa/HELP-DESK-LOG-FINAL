@@ -29,6 +29,7 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'admin.user.create'])->syncRoles([$role1]);
         Permission::create(['name' => 'admin.user.update'])->syncRoles([$role1]);
         Permission::create(['name' => 'admin.user.destroy'])->syncRoles([$role1]);
+        //Permission::create(['name' => 'admin.user.reporte'])->syncRoles([$role1]);
 
         //PERMISOS PARA TIPOS DE PROBLEMA
         Permission::create(['name' => 'admin.tipo_problema.index'])->syncRoles([$role1]);
@@ -42,6 +43,7 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'admin.solicitud.create'])->syncRoles([$role1, $role3]);
         Permission::create(['name' => 'admin.solicitud.edit'])->syncRoles([$role1, $role4]);
         Permission::create(['name' => 'admin.solicitud.destroy'])->syncRoles([$role1, $role4]);
+        //Permission::create(['name' => 'admin.solicitud.reporte'])->syncRoles([$role1,$role2, $role4]);
 
         //PERMISOS PARA ATENCIONES
         Permission::create(['name' => 'admin.atencion.index'])->syncRoles([$role1, $role2, $role4]);
