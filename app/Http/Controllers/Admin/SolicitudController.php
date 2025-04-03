@@ -148,8 +148,18 @@ class SolicitudController extends Controller
             abort(404, 'Archivo no encontrado.');
         }
 
-        return response()->file($path);
+        $headers = [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.basename($path).'"',
+            'Cache-Control' => 'public, must-revalidate, max-age=0',
+            'X-Content-Type-Options' => 'nosniff'
+        ];
+
+        return response()->stream(function () use ($path) {
+            readfile($path);
+        }, 200, $headers);
     }
+
 
     public function rechazar(Solicitud $solicitud, Request $request)
     {

@@ -69,7 +69,7 @@
                             <option value="">-- Seleccione un tipo de problema --</option>
                             @foreach($tipoProblemas as $tipo)
                                 <option value="{{ $tipo->id }}" {{ old('tipo_problema', $solicitud->tipo_problema) == $tipo->id ? 'selected' : '' }}>
-                                    {{ $tipo->nombre }} - {{ $tipo->descripcion }}
+                                    {{ $tipo->nombre }} -{{'DESCRIPCION: '}}- {{ $tipo->descripcion }} -{{'AREA DE SOLUCION: '}}- {{ $tipo->area_solucion }}
                                 </option>
                             @endforeach
                         </select>
