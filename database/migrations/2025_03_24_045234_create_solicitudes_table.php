@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('archivo')->nullable(); // ruta o nombre del archivo adjunto
             $table->string('estado')->default('pendiente');
             $table->string('prioridad')->default('media'); // prioridad de la solicitud (baja, media, alta)
+            $table->text('motivo_rechazo')->nullable();
 
 
             $table->timestamps();

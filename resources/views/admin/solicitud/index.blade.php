@@ -45,7 +45,7 @@
             $estadoCounts = $solicitudCollection->groupBy('estado')->map->count();
             $prioridadCounts = $solicitudCollection->groupBy('prioridad')->map->count();
 
-            // Define el orden deseado para prioridad y estado
+            // Define el orden deseado para prioridad y estado para ordenarlos en la vista
             $priorityOrder = ['alta' => 1, 'media' => 2, 'baja' => 3];
             $estadoOrder = ['pendiente' => 1, 'en proceso' => 2, 'finalizada' => 3, 'cancelada' => 4];
 
@@ -60,13 +60,12 @@
                 }
                 return $aPriority <=> $bPriority;
             });
-            // Actualiza la colección del paginador con las solicitudes ordenadas
+            // Se actualiza la colección del paginador con la colección ordenada
             $solicitudes->setCollection($sortedSolicitudes);
 
-            // Para seguimiento, filtramos las solicitudes según su estado
+            // Opcional: Se pueden filtrar secciones para seguimiento (Pendientes, En Proceso, Rechazadas)
             $solicitudesPendientes = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'pendiente');
             $solicitudesEnProceso = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'en proceso');
-            // Consideramos "rechazada" o "cancelada" como rechazadas
             $solicitudesRechazadas = $solicitudCollection->filter(fn($s) => in_array(strtolower($s->estado), ['rechazada', 'cancelada']));
         @endphp
 
@@ -92,8 +91,7 @@
 
         <!-- Listado General de Solicitudes -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mb-8">
-            @can('admin.solicitud.edit') <h2 class="text-xl font-bold mb-4">Listado de todas la solicitudes enviadas</h2> @endcan
-            <h2 class="text-xl font-bold mb-4">Mis Solicitudes enviadas</h2>
+            <h2 class="text-xl font-bold mb-4">Listado de Solicitudes</h2>
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
@@ -103,6 +101,8 @@
                         <th class="px-4 py-3 text-left">Descripción</th>
                         <th class="px-4 py-3 text-left">Estado</th>
                         <th class="px-4 py-3 text-left">Prioridad</th>
+                        <!-- Nueva columna: Tiempo de Respuesta -->
+                        <th class="px-4 py-3 text-left">Tiempo de Respuesta</th>
                         <th class="px-4 py-3 text-left">Material Solicitado</th>
                         <th class="px-4 py-3 text-left">Atenciones</th>
                         <th class="px-4 py-3 text-left">Acciones</th>
@@ -111,7 +111,7 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($solicitudes as $solicitud)
                         @php
-                            // Clases de estilo según estado
+                            // Determinar clases según el estado
                             switch($solicitud->estado) {
                                 case 'pendiente':
                                     $estadoClasses = 'bg-yellow-100 text-yellow-800';
@@ -130,7 +130,8 @@
                                     $estadoClasses = 'bg-gray-100 text-gray-800';
                                     break;
                             }
-                            // Clases de estilo según prioridad
+
+                            // Determinar clases según la prioridad
                             switch($solicitud->prioridad) {
                                 case 'alta':
                                     $prioridadClasses = 'bg-red-100 text-red-800';
@@ -146,7 +147,25 @@
                                     break;
                             }
 
-                            // Procesar Material Solicitado: se recorre atenciones y anotaciones
+                            // Calcular el tiempo de respuesta en días hábiles (excluyendo fines de semana)
+                            // Si la solicitud está finalizada, se mide desde creada hasta actualizada, de lo contrario, se mide hasta ahora.
+                            $startDate = $solicitud->created_at;
+                            $endDate = ($solicitud->estado === 'finalizada')
+                                ? $solicitud->updated_at
+                                : now();
+                            $diasHabiles = $startDate->diffInWeekDays($endDate);
+
+                            // Colorea el badge según la cantidad de días transcurridos:
+                            // Menor a 3 días -> verde, 3-5 -> naranja, más de 5 -> rojo.
+                            if($diasHabiles > 5) {
+                                $timeClasses = 'bg-red-100 text-red-800';
+                            } elseif($diasHabiles >= 3) {
+                                $timeClasses = 'bg-orange-100 text-orange-800';
+                            } else {
+                                $timeClasses = 'bg-green-100 text-green-800';
+                            }
+
+                            // Procesar Material Solicitado: recorre atenciones y extrae las anotaciones.
                             $materialSolicitado = collect();
                             foreach($solicitud->atenciones as $atencion) {
                                 if(isset($atencion->anotaciones) && $atencion->anotaciones->isNotEmpty()) {
@@ -180,6 +199,12 @@
                             <td class="px-4 py-2">
                                 <span class="inline-block px-2 py-1 text-xs font-semibold rounded {{ $prioridadClasses }}">
                                     {{ $solicitud->prioridad ?? 'N/A' }}
+                                </span>
+                            </td>
+                            <!-- Columna Tiempo de Respuesta -->
+                            <td class="px-4 py-2">
+                                <span class="inline-block px-2 py-1 text-xs font-semibold rounded {{ $timeClasses }}">
+                                    {{ $diasHabiles }} día{{ $diasHabiles == 1 ? '' : 's' }}
                                 </span>
                             </td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
@@ -226,7 +251,7 @@
                                 </form>
                                 @endcan
 
-                                <!-- Botón de Rechazar para técnico asignado -->
+                                <!-- Botón Rechazar para técnico asignado -->
                                 @if(auth()->user()->hasRole('tecnico') && $solicitud->tecnico == auth()->user()->id && $solicitud->estado !== 'pendiente reasignacion')
                                 <form action="{{ route('admin.solicitud.rechazar', $solicitud) }}" method="POST" class="flex items-center">
                                     @csrf
@@ -239,7 +264,7 @@
                                 </form>
                                 @endif
 
-                                <!-- Botón para Finalizar la solicitud (solo si no está finalizada) -->
+                                <!-- Botón Finalizar (solo si la solicitud no está finalizada) -->
                                 @if($solicitud->estado !== 'finalizada')
                                 <form action="{{ route('admin.solicitud.finalizar', $solicitud) }}" method="POST" class="flex items-center">
                                     @csrf
@@ -260,7 +285,7 @@
             </table>
         </div>
 
-        <!-- Seguimiento de solicitudes por estado: Pendientes, En Proceso y Rechazadas -->
+        <!-- Seguimiento de solicitudes por estado (solo para usuarios con permiso de edición) -->
         @can('admin.solicitud.edit')
         <div class="mb-8">
             <h2 class="text-xl font-bold mb-4">Seguimiento de Solicitudes</h2>
@@ -268,12 +293,10 @@
             @php
                 $solicitudesPendientes = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'pendiente');
                 $solicitudesEnProceso = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'en proceso');
-                // Consideramos rechazadas aquellas con estado 'rechazada' o 'cancelada'
                 $solicitudesRechazadas = $solicitudCollection->filter(fn($s) => in_array(strtolower($s->estado), ['rechazada', 'cancelada']));
             @endphp
 
             <!-- Tabla: Solicitudes Pendientes -->
-            @can('admin.solicitud.edit')
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-2">Solicitudes Pendientes ({{ $solicitudesPendientes->count() }})</h3>
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -297,7 +320,6 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-2">
-                                        <!-- Ejemplo de acción: Ver detalle -->
                                         <a href="{{ route('admin.solicitud.show', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
                                     </td>
                                 </tr>
@@ -306,10 +328,8 @@
                     </table>
                 </div>
             </div>
-            @endcan
 
             <!-- Tabla: Solicitudes En Proceso -->
-            @can('admin.solicitud.edit')
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-2">Solicitudes En Proceso ({{ $solicitudesEnProceso->count() }})</h3>
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -341,10 +361,8 @@
                     </table>
                 </div>
             </div>
-            @endcan
 
             <!-- Tabla: Solicitudes Rechazadas -->
-            @can('admin.solicitud.edit')
             <div>
                 <h3 class="text-lg font-semibold mb-2">Solicitudes Rechazadas ({{ $solicitudesRechazadas->count() }})</h3>
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -376,7 +394,6 @@
                     </table>
                 </div>
             </div>
-            @endcan
         </div>
         @endcan
 
