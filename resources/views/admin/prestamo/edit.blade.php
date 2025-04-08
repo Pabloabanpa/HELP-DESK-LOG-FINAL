@@ -24,8 +24,13 @@
 
             <div class="mb-4">
                 <label for="estado" class="block font-medium">Estado</label>
-                <input type="text" name="estado" id="estado" value="{{ old('estado', $prestamo->estado) }}"
-                       class="w-full border rounded p-2" placeholder="Por ejemplo: Pendiente, Aprobado, etc.">
+                <select name="estado" id="estado" class="w-full border rounded p-2">
+                    <option value="">-- Seleccione un estado --</option>
+                    <option value="pendiente" {{ old('estado', $prestamo->estado)=='pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="aprobado" {{ old('estado', $prestamo->estado)=='aprobado' ? 'selected' : '' }}>Aprobado</option>
+                    <option value="rechazado" {{ old('estado', $prestamo->estado)=='rechazado' ? 'selected' : '' }}>Rechazado</option>
+                    <!-- Agrega las opciones que necesites -->
+                </select>
             </div>
 
             <div class="flex space-x-4">
@@ -36,6 +41,7 @@
                     Cancelar
                 </a>
             </div>
+            
         </form>
     </div>
 </x-layouts.app>

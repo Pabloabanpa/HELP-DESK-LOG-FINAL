@@ -11,9 +11,11 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     <option value="">-- Seleccione una solicitud --</option>
                     @foreach ($solicitudes as $solicitud)
-                        <option value="{{ $solicitud->id }}">
-                            {{ $solicitud->id }} - {{ Str::limit($solicitud->descripcion, 30) }}
-                        </option>
+                        @if(auth()->user()->hasRole('admin') || (auth()->user()->hasRole('tecnico') && $solicitud->tecnico == auth()->user()->id))
+                            <option value="{{ $solicitud->id }}">
+                                {{ $solicitud->id }} - {{ Str::limit($solicitud->descripcion, 30) }}
+                            </option>
+                        @endif
                     @endforeach
                 </select>
             </div>
@@ -30,6 +32,7 @@
             <div>
                 <label for="fecha_inicio" class="block font-medium text-gray-700 dark:text-gray-300">Fecha de Inicio</label>
                 <input type="datetime-local" name="fecha_inicio" id="fecha_inicio"
+                       value="{{ now()->format('Y-m-d\TH:i') }}"
                        class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 

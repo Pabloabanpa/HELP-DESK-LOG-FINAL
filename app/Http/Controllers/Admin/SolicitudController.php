@@ -22,35 +22,42 @@ class SolicitudController extends Controller
     }
     public function index()
     {
-        // Verificamos que el usuario esté autenticado, en caso contrario se redirige al login.
+        // Verifica que el usuario esté autenticado; si no, redirige al login
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
         $user = auth()->user();
-        $solicitudes = collect([]); // Valor por defecto
+        $query = null;
 
+        // Filtrado según rol:
         if ($user->hasRole('admin') || $user->hasRole('secretaria')) {
             // Admin y secretaria ven todas las solicitudes
-            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
-                ->latest()
-                ->paginate(10);
+            $query = \App\Models\Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones']);
         } elseif ($user->hasRole('tecnico')) {
             // El técnico ve solo las solicitudes asignadas a él
-            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
-                ->where('tecnico', $user->id)
-                ->latest()
-                ->paginate(10);
+            $query = \App\Models\Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
+                        ->where('tecnico', $user->id);
         } elseif ($user->hasRole('solicitante')) {
             // El solicitante ve solo las solicitudes que él registró
-            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
-                ->where('solicitante', $user->id)
-                ->latest()
-                ->paginate(10);
+            $query = \App\Models\Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
+                        ->where('solicitante', $user->id);
+        } else {
+            // Para otros roles, se asigna un listado vacío
+            $query = \App\Models\Solicitud::query()->whereRaw('1 = 0');
         }
 
-        return view('admin.solicitud.index', compact('solicitudes'));
+        // Listado general paginado (10 elementos por página)
+        $solicitudes = $query->latest()->paginate(10);
+
+        // Listados paginados por categoría, cada uno con 10 elementos y un nombre de paginador distinto:
+        $pendientes = $query->where('estado', 'pendiente')->latest()->paginate(10, ['*'], 'pendientes');
+        $enProceso = $query->where('estado', 'en proceso')->latest()->paginate(10, ['*'], 'enproceso');
+        $rechazadas = $query->whereIn('estado', ['rechazada', 'cancelada'])->latest()->paginate(10, ['*'], 'rechazadas');
+
+        return view('admin.solicitud.index', compact('solicitudes', 'pendientes', 'enProceso', 'rechazadas'));
     }
+
 
     public function create()
     {
@@ -166,19 +173,27 @@ class SolicitudController extends Controller
 
     public function rechazar(Solicitud $solicitud, Request $request)
     {
+        // Valida que se envíe el motivo del rechazo
+        $data = $request->validate([
+            'motivo_rechazo' => 'required|string',
+        ]);
+
         // Solo permite que el técnico asignado rechace la solicitud
         if ($solicitud->tecnico != auth()->user()->id) {
             abort(403, 'No autorizado');
         }
 
-        // Actualizamos el estado y removemos el técnico asignado
+        // Actualiza el estado a "rechazada" y remueve el técnico, además guarda el motivo del rechazo
         $solicitud->update([
-            'estado'   => 'pendiente reasignacion',
-            'tecnico'  => null,
+            'estado'          => 'rechazada',
+            'tecnico'         => null,
+            'motivo_rechazo'  => $data['motivo_rechazo'],
         ]);
 
         return redirect()->back()->with('info', 'La solicitud ha sido rechazada. La secretaría podrá asignar un nuevo técnico.');
     }
+
+
     public function report()
     {
         // Consultamos todas las solicitudes con sus relaciones y contamos atenciones y anotaciones
@@ -197,31 +212,91 @@ class SolicitudController extends Controller
         return $pdf->stream('reporte-solicitudes.pdf');
         // Para forzar la descarga usa: return $pdf->download('reporte-solicitudes.pdf');
     }
-    public function dashboard()
-{
-    $user = auth()->user();
 
-    if ($user->hasRole('admin')) {
-        // Consultar todas las solicitudes para el admin y contar usuarios si es necesario
-        $solicitudes = Solicitud::with(['solicitanteUser', 'atenciones'])->latest()->get();
-        $totalUsuarios = \App\Models\User::count();
-    } else {
-        // Para usuarios (técnico o solicitante), se asume que se filtran las solicitudes correspondientes
-        $solicitudes = Solicitud::where('solicitante', $user->id)->with(['solicitanteUser', 'atenciones'])->latest()->get();
+    public function dashboard()
+    {
+        $user = auth()->user();
+
+        if ($user->hasRole('admin')) {
+            // Consultar todas las solicitudes para el admin y contar usuarios si es necesario
+            $solicitudes = Solicitud::with(['solicitanteUser', 'atenciones'])->latest()->get();
+            $totalUsuarios = \App\Models\User::count();
+        } else {
+            // Para usuarios (técnico o solicitante), se asume que se filtran las solicitudes correspondientes
+            $solicitudes = Solicitud::where('solicitante', $user->id)->with(['solicitanteUser', 'atenciones'])->latest()->get();
+        }
+
+        return view('admin.solicitud.dashboard', compact('solicitudes', 'totalUsuarios'));
     }
 
-    return view('admin.solicitud.dashboard', compact('solicitudes', 'totalUsuarios'));
-}
+    public function finalizar(Request $request, Solicitud $solicitud)
+    {
+        // Actualizamos la solicitud estableciendo su estado a "finalizada"
+        $solicitud->update(['estado' => 'finalizada']);
 
-public function finalizar(Request $request, Solicitud $solicitud)
+        // Redirige al listado con un mensaje de éxito
+        return redirect()->route('admin.solicitud.index')
+            ->with('success', 'La solicitud ha sido finalizada exitosamente.');
+    }
+
+    public function pendientes(Request $request)
+    {
+
+        // Recupera las solicitudes con relaciones necesarias
+        $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones'])
+                        ->where('estado', 'pendiente')
+                        ->orderBy('id', 'desc')
+                        ->paginate(10);
+
+        return view('admin.solicitud.pendiente', compact('solicitudes'));
+    }
+    public function reenviarPendientes()
+    {
+        // Se buscan solicitudes en estado "pendiente" creadas hace 7 días o más.
+        $pendientes = Solicitud::where('estado', 'pendiente')
+            ->where('created_at', '<=', now()->subDays(7))
+            ->get();
+
+        foreach ($pendientes as $solicitud) {
+            // Obtener los datos de la solicitud a clonar
+            $data = $solicitud->toArray();
+            // Eliminar los campos que deben generarse de forma nueva
+            unset($data['id'], $data['created_at'], $data['updated_at']);
+            // Puedes resetear el estado o mantenerlo; en este caso lo dejamos en "pendiente"
+            $data['estado'] = 'pendiente';
+            // Se crean las nuevas marcas de tiempo
+            $data['created_at'] = now();
+            $data['updated_at'] = now();
+
+            // Crear la nueva solicitud con los mismos datos
+            Solicitud::create($data);
+        }
+
+        return redirect()->back()->with('success', 'Se han reenviado las solicitudes pendientes por más de 7 días.');
+    }
+    public function reenviarSolicitud(Solicitud $solicitud)
 {
-    // Actualizamos la solicitud estableciendo su estado a "finalizada"
-    $solicitud->update(['estado' => 'finalizada']);
+    // Permite reenviar la solicitud solo si no tiene técnico asignado.
+    if (!is_null($solicitud->tecnico)) {
+        return redirect()->back()->with('error', 'Esta solicitud ya tiene un técnico asignado, no se puede reenviar individualmente.');
+    }
 
-    // Redirige al listado con un mensaje de éxito
-    return redirect()->route('admin.solicitud.index')
-        ->with('success', 'La solicitud ha sido finalizada exitosamente.');
+    // Convertir la solicitud a array y eliminar campos que se generan automáticamente.
+    $data = $solicitud->toArray();
+    unset($data['id'], $data['created_at'], $data['updated_at']);
+
+    // Puedes reiniciar el estado o dejarlo como "pendiente".
+    $data['estado'] = 'pendiente';
+    $data['created_at'] = now();
+    $data['updated_at'] = now();
+
+    Solicitud::create($data);
+
+    return redirect()->back()->with('success', 'La solicitud ha sido reenviada exitosamente.');
 }
+
+
+
 
 
 

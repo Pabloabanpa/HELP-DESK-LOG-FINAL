@@ -17,16 +17,18 @@
             @csrf
             <!-- La descripción es opcional -->
             <div class="mb-4">
-                <label for="descripcion" class="block font-medium">Descripción</label>
+                <label for="descripcion" class="block font-medium">Mateial Solicitado</label>
                 <textarea name="descripcion" id="descripcion" rows="3" class="w-full border rounded p-2">{{ old('descripcion') }}</textarea>
             </div>
 
             <!-- El estado es opcional -->
+            @can('admin.prestamo.edit')
             <div class="mb-4">
                 <label for="estado" class="block font-medium">Estado</label>
                 <input type="text" name="estado" id="estado" value="{{ old('estado') }}"
                        class="w-full border rounded p-2" placeholder="Por ejemplo: Pendiente, Aprobado, etc.">
             </div>
+            @endcan
 
             <div class="flex space-x-4">
                 <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">

@@ -28,15 +28,6 @@
                         </flux:navlist.item>
                     @endcan
 
-
-                    @can('admin.tipo_problema.index')
-                    <flux:navlist.item icon="face-frown" :href="route('admin.tipo_problema.index')"
-                        :current="request()->routeIs('admin.tipo_problema.index')" wire:navigate>
-                        {{ __('Tipos de Problemas') }}
-                    </flux:navlist.item>
-                    @endcan
-
-
                     @can('admin.solicitud.index')
                         <flux:navlist.item icon="clipboard-document" :href="route('admin.solicitud.index')"
                             :current="request()->routeIs('admin.solicitud.index')" wire:navigate>
@@ -67,11 +58,15 @@
                     @endcan
 
                     @can('admin.prestamo.index')
-                    <flux:navlist.item icon="ticket" :href="route('admin.prestamo.index')"
-                        :current="request()->routeIs('admin.prestamo.index')" wire:navigate>
-                        {{ __('Prestamos') }}
-                    </flux:navlist.item>
-                @endcan
+                        <flux:navlist.item icon="document" :href="route('admin.prestamo.index')"
+                            :current="request()->routeIs('admin.prestamo.index')" wire:navigate>
+                            {{ __('Prestamos') }}
+                        </flux:navlist.item>
+                    @endcan
+
+
+
+
                 </flux:navlist.group>
             </flux:navlist>
 

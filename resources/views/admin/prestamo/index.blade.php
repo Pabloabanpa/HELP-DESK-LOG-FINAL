@@ -23,25 +23,44 @@
                     <tr>
                         <th class="px-4 py-2 text-left">ID</th>
                         <th class="px-4 py-2 text-left">Solicitante</th>
-                        <th class="px-4 py-2 text-left">Descripción</th>
+                        <th class="px-4 py-2 text-left">Material solicitado</th>
                         <th class="px-4 py-2 text-left">Estado</th>
                         <th class="px-4 py-2 text-left">Fecha Creación</th>
+                        @can('admin.prestamo.edit')
                         <th class="px-4 py-2 text-left">Acciones</th>
+                        @endcan
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach ($prestamos as $prestamo)
+                        @php
+                            switch($prestamo->estado) {
+                                case 'pendiente':
+                                    $estadoBadge = 'bg-yellow-100 text-yellow-800';
+                                    break;
+                                case 'aprobado':
+                                    $estadoBadge = 'bg-green-100 text-green-800';
+                                    break;
+                                case 'rechazado':
+                                    $estadoBadge = 'bg-red-100 text-red-800';
+                                    break;
+                                default:
+                                    $estadoBadge = 'bg-gray-100 text-gray-800';
+                                    break;
+                            }
+                        @endphp
                         <tr>
                             <td class="px-4 py-2">{{ $prestamo->id }}</td>
-                            <td class="px-4 py-2">
-                                {{ $prestamo->solicitanteUser->name ?? 'N/A' }}
-                            </td>
+                            <td class="px-4 py-2">{{ $prestamo->solicitanteUser->name ?? 'N/A' }}</td>
                             <td class="px-4 py-2">{{ $prestamo->descripcion ?? 'Sin descripción' }}</td>
-                            <td class="px-4 py-2">{{ $prestamo->estado ?? 'N/A' }}</td>
+                            <td class="px-4 py-2">
+                                <span class="inline-block px-2 py-1 text-xs font-semibold rounded {{ $estadoBadge }}">
+                                    {{ $prestamo->estado ?? 'N/A' }}
+                                </span>
+                            </td>
                             <td class="px-4 py-2">{{ $prestamo->created_at->format('d/m/Y') }}</td>
+                            @can('admin.prestamo.edit')
                             <td class="px-4 py-2 flex space-x-2">
-                                <a href="{{ route('admin.prestamo.show', $prestamo) }}"
-                                   class="px-2 py-1 text-blue-600 hover:underline">Ver</a>
                                 <a href="{{ route('admin.prestamo.edit', $prestamo) }}"
                                    class="px-2 py-1 text-yellow-600 hover:underline">Editar</a>
                                 <form action="{{ route('admin.prestamo.destroy', $prestamo) }}" method="POST"
@@ -53,6 +72,7 @@
                                     </button>
                                 </form>
                             </td>
+                            @endcan
                         </tr>
                     @endforeach
                 </tbody>

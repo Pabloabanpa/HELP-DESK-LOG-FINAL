@@ -21,6 +21,7 @@ class Solicitud extends Model
         'estado',
         'prioridad',
         'tipo_problema',
+        'motivo_rechazo',
 
     ];
 
