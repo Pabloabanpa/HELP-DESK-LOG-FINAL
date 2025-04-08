@@ -15,6 +15,7 @@
             Este es tu panel principal del sistema Help Desk.
         </p>
 
-        
+
     </div>
 </x-layouts.app>
+        

@@ -56,6 +56,10 @@
                             {{ __('Reportes') }}
                         </flux:navlist.item>
                     @endcan
+
+
+
+
                 </flux:navlist.group>
             </flux:navlist>
 

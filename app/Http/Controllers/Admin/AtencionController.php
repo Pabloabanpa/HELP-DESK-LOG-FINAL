@@ -16,7 +16,7 @@ class AtencionController extends Controller
         $this->middleware('can:admin.atencion.edit')->only(['edit', 'update']);
         $this->middleware('can:admin.atencion.destroy')->only(['destroy']);
     }
-    
+
     // Muestra el listado de atenciones
     public function index()
     {
@@ -39,27 +39,9 @@ class AtencionController extends Controller
     }
 
     // Muestra el formulario para crear una nueva atención
-    public function create()
-    {
-        $user = auth()->user();
 
-        // Solo el técnico (y el administrador) pueden iniciar una atención
-        if ($user->hasRole('tecnico') || $user->hasRole('admin')) {
-            if ($user->hasRole('tecnico')) {
-                // Se muestran las solicitudes asignadas al técnico o sin asignar
-                $solicitudes = Solicitud::where(function ($query) use ($user) {
-                    $query->where('tecnico', $user->id)
-                          ->orWhereNull('tecnico');
-                })->get();
-            } else {
-                // El administrador puede ver todas las solicitudes
-                $solicitudes = Solicitud::all();
-            }
-            return view('admin.atencion.create', compact('solicitudes'));
-        }
 
-        abort(403, 'No autorizado');
-    }
+     
 
     // Almacena una nueva atención
     public function store(Request $request)

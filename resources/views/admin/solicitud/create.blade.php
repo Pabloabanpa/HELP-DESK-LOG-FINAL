@@ -16,6 +16,7 @@
                     </div>
 
                     <!-- Técnico -->
+                    @can('admin.solicitud.edit')
                     <div>
                         <label for="tecnico" class="block font-medium text-gray-700 dark:text-gray-300">Técnico Asignado</label>
                         <select name="tecnico" id="tecnico"
@@ -26,36 +27,36 @@
                             @endforeach
                         </select>
                     </div>
+                    @endcan
 
                     <!-- Código de Equipo / Archivo -->
-                    <div id="equipoSection">
+                    <div id="equipoSection" class="{{ old('upload_file') ? 'hidden' : '' }}">
                         <label for="equipo_id" class="block font-medium text-gray-700 dark:text-gray-300">Código de Equipo</label>
                         <input type="text" name="equipo_id" id="equipo_id"
+                               value="{{ old('equipo_id') }}"
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div class="flex items-center">
-                        <input type="checkbox" id="uploadCheckbox" name="upload_file" value="1" class="mr-2" onclick="toggleEquipoSection()">
-                        <label for="uploadCheckbox" class="text-gray-700 dark:text-gray-300">No tengo código de equipo, subir archivo</label>
+                        <input type="checkbox" id="uploadCheckbox" name="upload_file" value="1" class="mr-2" onclick="toggleEquipoSection()" {{ old('upload_file') ? 'checked' : '' }}>
+                        <label for="uploadCheckbox" class="text-gray-700 dark:text-gray-300">No tengo código de equipo, subir archivo en caso de problemas en mi equipo particular.</label>
                     </div>
-                    <div id="fileSection" class="hidden">
+                    <div id="fileSection" class="{{ old('upload_file') ? '' : 'hidden' }}">
                         <label for="archivo" class="block font-medium text-gray-700 dark:text-gray-300">Archivo</label>
                         <input type="file" name="archivo" id="archivo"
                                class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
-                    <!-- Tipo de Problema -->
+                    <!-- Tipo de Problema (cargado desde la tabla) -->
                     <div>
                         <label for="tipo_problema" class="block font-medium text-gray-700 dark:text-gray-300">Tipo de Problema</label>
                         <select name="tipo_problema" id="tipo_problema"
                                 class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">-- Seleccione un tipo de problema --</option>
-                            <option value="hardware">Hardware (equipos, componentes, etc.)</option>
-                            <option value="software">Software (aplicaciones, sistemas operativos, etc.)</option>
-                            <option value="red">Red (conexiones, VPN, WiFi, etc.)</option>
-                            <option value="acceso">Acceso y Autenticación (credenciales, permisos, etc.)</option>
-                            <option value="impresora">Impresoras y Periféricos</option>
-                            <option value="seguridad">Seguridad (antivirus, malware, etc.)</option>
-                            <option value="otros">Otros</option>
+                            @foreach($tipoProblemas as $tipo)
+                                <option value="{{ $tipo->id }}">
+                                    {{ $tipo->nombre }} - {{ $tipo->descripcion }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -63,10 +64,11 @@
                     <div>
                         <label for="descripcion" class="block font-medium text-gray-700 dark:text-gray-300">Descripción</label>
                         <textarea name="descripcion" id="descripcion" rows="4"
-                                  class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                                  class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('descripcion') }}</textarea>
                     </div>
 
                     <!-- Estado -->
+                    @can('admin.solicitud.edit')
                     <div>
                         <label for="estado" class="block font-medium text-gray-700 dark:text-gray-300">Estado</label>
                         <select name="estado" id="estado"
@@ -77,8 +79,10 @@
                             <option value="cancelada">Cancelada</option>
                         </select>
                     </div>
+                    @endcan
 
                     <!-- Prioridad -->
+                    @can('admin.solicitud.edit')
                     <div>
                         <label for="prioridad" class="block font-medium text-gray-700 dark:text-gray-300">Prioridad</label>
                         <select name="prioridad" id="prioridad"
@@ -92,6 +96,7 @@
                             <span class="text-red-600 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
+                    @endcan
 
                     <!-- Botón -->
                     <div class="text-center">
@@ -102,27 +107,78 @@
                 </form>
             </div>
 
-            <!-- Columna derecha: Información de Técnicos y Solicitudes Asignadas -->
+            @can('admin.solicitud.edit')
             <div class="lg:w-1/3 p-4 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Técnicos y Solicitudes Asignadas</h2>
-                <ul class="divide-y divide-gray-200 dark:divide-gray-600">
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Técnicos por Área</h2>
+
+                <!-- Bloque para Soporte -->
+                <div class="mb-6">
+                    <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mb-2">Soporte</h3>
                     @foreach($tecnicos as $tecnico)
-                        <li class="py-2">
-                            <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
-                            <ul class="ml-4 mt-1">
-                                @foreach($tecnico->solicitudes as $solicitud)
-                                    <li class="text-sm text-gray-600 dark:text-gray-300">
-                                        #{{ $solicitud->id }}: {{ Str::limit($solicitud->descripcion, 30) }}
-                                    </li>
-                                @endforeach
-                                @if($tecnico->solicitudes->isEmpty())
-                                    <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
-                                @endif
-                            </ul>
-                        </li>
+                        @if($tecnico->hasRole('tecnico') && strtolower($tecnico->area) == 'soporte')
+                            <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                                <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
+                                <ul class="ml-4 mt-1">
+                                    @foreach($tecnico->solicitudes as $solicitudAsignada)
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">
+                                            #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
+                                        </li>
+                                    @endforeach
+                                    @if($tecnico->solicitudes->isEmpty())
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
                     @endforeach
-                </ul>
+                </div>
+
+                <!-- Bloque para Redes -->
+                <div class="mb-6">
+                    <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mb-2">Redes</h3>
+                    @foreach($tecnicos as $tecnico)
+                        @if($tecnico->hasRole('tecnico') && strtolower($tecnico->area) == 'redes')
+                            <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                                <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
+                                <ul class="ml-4 mt-1">
+                                    @foreach($tecnicos as $solicitudAsignada)
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">
+                                            #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
+                                        </li>
+                                    @endforeach
+                                    @if($tecnico->solicitudes->isEmpty())
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <!-- Bloque para Desarrollo -->
+                <div>
+                    <h3 class="text-md font-bold text-gray-700 dark:text-gray-300 mb-2">Desarrollo</h3>
+                    @foreach($tecnicos as $tecnico)
+                        @if($tecnico->hasRole('tecnico') && strtolower($tecnico->area) == 'desarrollo')
+                            <div class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
+                                <div class="font-semibold text-gray-800 dark:text-gray-100">{{ $tecnico->name }}</div>
+                                <ul class="ml-4 mt-1">
+                                    @foreach($tecnicos as $solicitudAsignada)
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">
+                                            #{{ $solicitudAsignada->id }}: {{ Str::limit($solicitudAsignada->descripcion, 30) }}
+                                        </li>
+                                    @endforeach
+                                    @if($tecnico->solicitudes->isEmpty())
+                                        <li class="text-sm text-gray-600 dark:text-gray-300">Sin solicitudes asignadas</li>
+                                    @endif
+                                </ul>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
             </div>
+            @endcan
+
         </div>
     </div>
 
@@ -132,6 +188,7 @@
             var fileSection = document.getElementById('fileSection');
             var equipoSection = document.getElementById('equipoSection');
             if(checkbox.checked){
+                // Si se marca la casilla, se muestra la sección de archivo y se oculta el campo de código de equipo
                 fileSection.classList.remove('hidden');
                 equipoSection.classList.add('hidden');
             } else {
@@ -139,5 +196,10 @@
                 equipoSection.classList.remove('hidden');
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            // Ejecuta el toggle en la carga de la página para aplicar el estado si viene marcado
+            toggleEquipoSection();
+        });
     </script>
 </x-layouts.app>

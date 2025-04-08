@@ -24,7 +24,11 @@ return new class extends Migration
             $table->string('oficina')->nullable();
             $table->string('ci')->nullable();
             $table->string('celular')->nullable();
+            $table->string('area')->default('soporte');
+            $table->string('estado')->default('activo');
             $table->date('fecha_nacimiento')->nullable();
+            $table->string('latitude')->nullable()->after('oficina');
+            $table->string('longitude')->nullable()->after('latitude');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

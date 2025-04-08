@@ -3,6 +3,8 @@
         <h1 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Crear Usuario</h1>
         <form action="{{ route('admin.user.store') }}" method="POST" class="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             @csrf
+            <!-- Campo oculto para asignar el rol solicitante -->
+            <input type="hidden" name="roles[]" value="solicitante">
 
             <div>
                 <label for="name" class="block font-medium text-gray-700 dark:text-gray-300">Nombre</label>
@@ -38,6 +40,27 @@
                 <label for="oficina" class="block font-medium text-gray-700 dark:text-gray-300">Oficina</label>
                 <input type="text" name="oficina" id="oficina" value="{{ old('oficina') }}"
                        class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <!-- Área: Se permite seleccionar el área del usuario, pero el rol asignado siempre será solicitante -->
+            <div>
+                <label for="area" class="block font-medium text-gray-700 dark:text-gray-300">Área</label>
+                <select name="area" id="area" 
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">-- Seleccione un área --</option>
+                    <option value="soporte" {{ old('area') == 'soporte' ? 'selected' : '' }}>Soporte</option>
+                    <option value="redes" {{ old('area') == 'redes' ? 'selected' : '' }}>Redes</option>
+                    <option value="desarrollo" {{ old('area') == 'desarrollo' ? 'selected' : '' }}>Desarrollo</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="estado" class="block font-medium text-gray-700 dark:text-gray-300">Estado</label>
+                <select name="estado" id="estado"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="activo" {{ old('estado', 'activo') == 'activo' ? 'selected' : '' }}>Activo</option>
+                    <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                </select>
             </div>
 
             <div>
