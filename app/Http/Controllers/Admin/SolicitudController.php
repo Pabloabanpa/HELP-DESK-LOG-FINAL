@@ -22,7 +22,13 @@ class SolicitudController extends Controller
     }
     public function index()
     {
+        // Verificamos que el usuario esté autenticado, en caso contrario se redirige al login.
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         $user = auth()->user();
+        $solicitudes = collect([]); // Asignación por defecto, en caso de que el usuario no cumpla ninguna condición
 
         if ($user->hasRole('admin') || $user->hasRole('secretaria')) {
             // Admin y secretaria ven todas las solicitudes
@@ -41,9 +47,6 @@ class SolicitudController extends Controller
                 ->where('solicitante', $user->id)
                 ->latest()
                 ->paginate(10);
-        } else {
-            // Para otros roles, se puede retornar un listado vacío o implementar otra lógica
-            $solicitudes = collect([]);
         }
 
         return view('admin.solicitud.index', compact('solicitudes'));
@@ -194,6 +197,22 @@ class SolicitudController extends Controller
         return $pdf->stream('reporte-solicitudes.pdf');
         // Para forzar la descarga usa: return $pdf->download('reporte-solicitudes.pdf');
     }
+    public function dashboard()
+{
+    $user = auth()->user();
+
+    if ($user->hasRole('admin')) {
+        // Consultar todas las solicitudes para el admin y contar usuarios si es necesario
+        $solicitudes = Solicitud::with(['solicitanteUser', 'atenciones'])->latest()->get();
+        $totalUsuarios = \App\Models\User::count();
+    } else {
+        // Para usuarios (técnico o solicitante), se asume que se filtran las solicitudes correspondientes
+        $solicitudes = Solicitud::where('solicitante', $user->id)->with(['solicitanteUser', 'atenciones'])->latest()->get();
+    }
+
+    return view('admin.solicitud.dashboard', compact('solicitudes', 'totalUsuarios'));
+}
+
 
 
 }

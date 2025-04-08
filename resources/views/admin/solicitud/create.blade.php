@@ -38,7 +38,7 @@
                     </div>
                     <div class="flex items-center">
                         <input type="checkbox" id="uploadCheckbox" name="upload_file" value="1" class="mr-2" onclick="toggleEquipoSection()" {{ old('upload_file') ? 'checked' : '' }}>
-                        <label for="uploadCheckbox" class="text-gray-700 dark:text-gray-300">No tengo código de equipo, subir archivo</label>
+                        <label for="uploadCheckbox" class="text-gray-700 dark:text-gray-300">No tengo código de equipo, subir archivo en caso de problemas en mi equipo particular.</label>
                     </div>
                     <div id="fileSection" class="{{ old('upload_file') ? '' : 'hidden' }}">
                         <label for="archivo" class="block font-medium text-gray-700 dark:text-gray-300">Archivo</label>

@@ -1,15 +1,16 @@
 <x-layouts.app :title="__('Listado de Solicitudes')">
     <div class="max-w-7xl mx-auto px-4 py-6">
-        <!-- Encabezado -->
+        <!-- Encabezado: Título y botón para crear nueva solicitud -->
         <div class="flex flex-col md:flex-row items-center justify-between mb-6">
             <div class="flex items-center space-x-3">
-                <!-- Ícono de Solicitudes -->
+                <!-- Ícono representativo de Solicitudes -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M9 8h6m2 8a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v8a2 2 0 002 2h8z" />
                 </svg>
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Solicitudes</h1>
             </div>
             <div class="mt-4 md:mt-0">
+                <!-- Botón para crear nueva solicitud (según permisos) -->
                 @can('admin.solicitud.create')
                 <a href="{{ route('admin.solicitud.create') }}"
                    class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
@@ -20,57 +21,86 @@
                     Nueva Solicitud
                 </a>
                 @endcan
-
             </div>
         </div>
 
-        @foreach($solicitudes as $solicitud)
-            @php
-                // Clases de badge para el estado
-                switch($solicitud->estado) {
-                    case 'pendiente':
-                        $estadoClasses = 'bg-yellow-100 text-yellow-800';
-                        break;
-                    case 'en proceso':
-                        $estadoClasses = 'bg-blue-100 text-blue-800';
-                        break;
-                    case 'finalizada':
-                        $estadoClasses = 'bg-green-100 text-green-800';
-                        break;
-                    case 'cancelada':
-                        $estadoClasses = 'bg-red-100 text-red-800';
-                        break;
-                    default:
-                        $estadoClasses = 'bg-gray-100 text-gray-800';
-                        break;
+        <!-- Tarjetas de contadores: Solicitudes y Usuarios -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="p-4 bg-white shadow rounded">
+                <!-- Se utiliza $solicitudes->total() del paginador para indicar el total de solicitudes -->
+                <span class="text-xl font-bold">{{ $solicitudes->total() }}</span>
+                <span class="text-gray-500">Solicitudes encontradas</span>
+            </div>
+            <div class="p-4 bg-white shadow rounded">
+                <!-- Se cuenta el total de usuarios registrados. Se asume que el modelo User está disponible -->
+                <span class="text-xl font-bold">{{ \App\Models\User::count() }}</span>
+                <span class="text-gray-500">Usuarios registrados</span>
+            </div>
+        </div>
+
+        <!-- Preparación de datos para los gráficos y ordenamiento de solicitudes -->
+        @php
+            // Se obtiene la colección de solicitudes correspondiente a la página actual
+            $solicitudCollection = $solicitudes->getCollection();
+
+            // Para los gráficos, se agrupan y cuentan las solicitudes por estado y prioridad
+            $estadoCounts = $solicitudCollection->groupBy('estado')->map->count();
+            $prioridadCounts = $solicitudCollection->groupBy('prioridad')->map->count();
+
+            /*
+             * Ordenamos las solicitudes por prioridad y, en caso de empate, por estado.
+             * Se definen arrays con el orden deseado:
+             *   - Prioridad: 'alta' primero, luego 'media' y finalmente 'baja'.
+             *   - Estado: 'pendiente', 'en proceso', 'finalizada' y 'cancelada'.
+             * Si algún valor no se encuentra, se le asigna un número alto (999) para que quede al final.
+             */
+            $priorityOrder = ['alta' => 1, 'media' => 2, 'baja' => 3];
+            $estadoOrder = ['pendiente' => 1, 'en proceso' => 2, 'finalizada' => 3, 'cancelada' => 4];
+
+            $sortedSolicitudes = $solicitudCollection->sort(function($a, $b) use ($priorityOrder, $estadoOrder) {
+                $aPriority = $priorityOrder[strtolower($a->prioridad)] ?? 999;
+                $bPriority = $priorityOrder[strtolower($b->prioridad)] ?? 999;
+                if ($aPriority === $bPriority) {
+                    $aEstado = $estadoOrder[strtolower($a->estado)] ?? 999;
+                    $bEstado = $estadoOrder[strtolower($b->estado)] ?? 999;
+                    return $aEstado <=> $bEstado;
                 }
-                // Clases de badge para la prioridad (ajusta según tus requerimientos)
-                switch($solicitud->prioridad) {
-                    case 'alta':
-                        $prioridadClasses = 'bg-red-100 text-red-800';
-                        break;
-                    case 'media':
-                        $prioridadClasses = 'bg-yellow-100 text-yellow-800';
-                        break;
-                    case 'baja':
-                        $prioridadClasses = 'bg-green-100 text-green-800';
-                        break;
-                    default:
-                        $prioridadClasses = 'bg-gray-100 text-gray-800';
-                        break;
-                }
-            @endphp
-        @endforeach
+                return $aPriority <=> $bPriority;
+            });
+
+            // Se actualiza la colección del paginador con las solicitudes ordenadas
+            $solicitudes->setCollection($sortedSolicitudes);
+        @endphp
+
+        <!-- Sección de Gráficos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Gráfico de pastel para Estados -->
+            <div class="bg-white p-4 shadow rounded">
+                <h2 class="text-lg font-semibold mb-4">Estado de Solicitudes</h2>
+                <!-- Contenedor con altura fija para evitar expansión infinita -->
+                <div class="relative h-64">
+                    <canvas id="estadoChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+            <!-- Gráfico de barras para Prioridades -->
+            <div class="bg-white p-4 shadow rounded">
+                <h2 class="text-lg font-semibold mb-4">Prioridad de Solicitudes</h2>
+                <!-- Contenedor con altura fija para evitar expansión infinita -->
+                <div class="relative h-64">
+                    <canvas id="prioridadChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+        </div>
 
         <!-- Tabla de Solicitudes -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                <!-- Cabecera de la tabla -->
                 <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
                         <th class="px-4 py-3 text-left">Solicitante</th>
                         <th class="px-4 py-3 text-left">Técnico</th>
                         <th class="px-4 py-3 text-left">Equipo / Archivo</th>
-
                         <th class="px-4 py-3 text-left">Descripción</th>
                         <th class="px-4 py-3 text-left">Estado</th>
                         <th class="px-4 py-3 text-left">Prioridad</th>
@@ -78,8 +108,44 @@
                         <th class="px-4 py-3 text-left">Acciones</th>
                     </tr>
                 </thead>
+                <!-- Cuerpo de la tabla -->
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($solicitudes as $solicitud)
+                        @php
+                            // Asigna clases CSS para el badge según el estado
+                            switch($solicitud->estado) {
+                                case 'pendiente':
+                                    $estadoClasses = 'bg-yellow-100 text-yellow-800';
+                                    break;
+                                case 'en proceso':
+                                    $estadoClasses = 'bg-blue-100 text-blue-800';
+                                    break;
+                                case 'finalizada':
+                                    $estadoClasses = 'bg-green-100 text-green-800';
+                                    break;
+                                case 'cancelada':
+                                    $estadoClasses = 'bg-red-100 text-red-800';
+                                    break;
+                                default:
+                                    $estadoClasses = 'bg-gray-100 text-gray-800';
+                                    break;
+                            }
+                            // Asigna clases CSS para el badge según la prioridad
+                            switch($solicitud->prioridad) {
+                                case 'alta':
+                                    $prioridadClasses = 'bg-red-100 text-red-800';
+                                    break;
+                                case 'media':
+                                    $prioridadClasses = 'bg-yellow-100 text-yellow-800';
+                                    break;
+                                case 'baja':
+                                    $prioridadClasses = 'bg-green-100 text-green-800';
+                                    break;
+                                default:
+                                    $prioridadClasses = 'bg-gray-100 text-gray-800';
+                                    break;
+                            }
+                        @endphp
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $solicitud->solicitanteUser->name }}</td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
@@ -122,7 +188,6 @@
                                     <span class="text-sm text-gray-500">Sin atenciones</span>
                                 @endif
                             </td>
-
                             <td class="px-4 py-2 flex space-x-2">
                                 @can('admin.solicitud.edit')
                                 <a href="{{ route('admin.solicitud.edit', $solicitud) }}" class="flex items-center text-blue-600 hover:text-blue-800">
@@ -147,7 +212,6 @@
                                 </form>
                                 @endcan
 
-                                {{-- Botón de rechazar para el técnico asignado --}}
                                 @if(auth()->user()->hasRole('tecnico') && $solicitud->tecnico == auth()->user()->id && $solicitud->estado !== 'pendiente reasignacion')
                                 <form action="{{ route('admin.solicitud.rechazar', $solicitud) }}" method="POST" class="flex items-center">
                                     @csrf
@@ -160,8 +224,6 @@
                                 </form>
                                 @endif
                             </td>
-
-
                         </tr>
                     @endforeach
                 </tbody>
@@ -173,4 +235,49 @@
             {{ $solicitudes->links() }}
         </div>
     </div>
+
+    <!-- Inclusión de Chart.js desde CDN para generación de gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Gráfico de pastel para la distribución de Estados
+        var ctxEstado = document.getElementById('estadoChart').getContext('2d');
+        var estadoChart = new Chart(ctxEstado, {
+            type: 'pie',
+            data: {
+                labels: {!! json_encode($estadoCounts->keys()) !!},
+                datasets: [{
+                    data: {!! json_encode($estadoCounts->values()) !!},
+                    backgroundColor: ['#FBBF24', '#60A5FA', '#34D399', '#F87171', '#A3A3A3']
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Gráfico de barras para la distribución de Prioridades
+        var ctxPrioridad = document.getElementById('prioridadChart').getContext('2d');
+        var prioridadChart = new Chart(ctxPrioridad, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($prioridadCounts->keys()) !!},
+                datasets: [{
+                    label: 'Solicitudes por Prioridad',
+                    data: {!! json_encode($prioridadCounts->values()) !!},
+                    backgroundColor: ['#F87171', '#FBBF24', '#34D399', '#60A5FA', '#A3A3A3']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </x-layouts.app>

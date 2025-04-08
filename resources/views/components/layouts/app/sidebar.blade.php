@@ -40,7 +40,7 @@
                     @can('admin.solicitud.index')
                         <flux:navlist.item icon="clipboard-document" :href="route('admin.solicitud.index')"
                             :current="request()->routeIs('admin.solicitud.index')" wire:navigate>
-                            {{ __('Solicitudes') }}
+                            {{ __('Mis Solicitudes') }}
                         </flux:navlist.item>
                     @endcan
 
@@ -65,6 +65,13 @@
                             {{ __('Reportes') }}
                         </flux:navlist.item>
                     @endcan
+
+                    @can('admin.solicitud.index')
+                    <flux:navlist.item icon="ticket" :href="route('admin.solicitud.index')"
+                        :current="request()->routeIs('admin.solicitud.index')" wire:navigate>
+                        {{ __('Prestamos') }}
+                    </flux:navlist.item>
+                @endcan
                 </flux:navlist.group>
             </flux:navlist>
 

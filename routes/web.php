@@ -37,6 +37,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('solicitud/{solicitud}/rechazar', [SolicitudController::class, 'rechazar'])
         ->name('solicitud.rechazar');
 
+    Route::get('solicitud/dashboard', [SolicitudController::class, 'dashboard'])->name('solicitud.dashboard');
+
+
 
 });
 
