@@ -40,7 +40,6 @@ class RoleSeeder extends Seeder
 
         //PERMISOS PARA SOLICIUTDES
         Permission::create(['name' => 'admin.solicitud.index'])->syncRoles([$role1, $role2, $role3, $role4]);
-        Permission::create(['name' => 'admin.solicitud.pendiente'])->syncRoles([]);
         Permission::create(['name' => 'admin.solicitud.create'])->syncRoles([$role1, $role3]);
         Permission::create(['name' => 'admin.solicitud.edit'])->syncRoles([$role1, $role4]);
         Permission::create(['name' => 'admin.solicitud.destroy'])->syncRoles([$role1, $role4]);

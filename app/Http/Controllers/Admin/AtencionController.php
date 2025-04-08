@@ -38,10 +38,14 @@ class AtencionController extends Controller
         return view('admin.atencion.index', compact('atenciones'));
     }
 
-    // Muestra el formulario para crear una nueva atención
-
-
-     
+    // Muestra el formulario para crear una nueva atención.
+    public function create()
+    {
+        // Opcional: Puedes obtener el listado de solicitudes disponibles,
+        // según el rol del usuario o algún filtro especificado.
+        $solicitudes = Solicitud::latest()->get();
+        return view('admin.atencion.create', compact('solicitudes'));
+    }
 
     // Almacena una nueva atención
     public function store(Request $request)
@@ -106,7 +110,6 @@ class AtencionController extends Controller
         $user = auth()->user();
 
         if ($user->hasRole('admin')) {
-            // El administrador puede actualizar todos los campos
             $request->validate([
                 'descripcion'  => 'required|string',
                 'estado'       => 'required|string',
@@ -118,7 +121,6 @@ class AtencionController extends Controller
             return redirect()->route('admin.atencion.index')
                 ->with('success', 'Atención actualizada exitosamente.');
         } elseif ($user->hasRole('tecnico') && $atencion->solicitud->tecnico == $user->id) {
-            // El técnico puede actualizar todos los campos de su atención
             $request->validate([
                 'descripcion'  => 'required|string',
                 'estado'       => 'required|string',
@@ -130,7 +132,6 @@ class AtencionController extends Controller
             return redirect()->route('admin.atencion.index')
                 ->with('success', 'Atención actualizada exitosamente.');
         } elseif ($user->hasRole('secretaria')) {
-            // La secretaria solo puede cambiar el estado a "finalizada"
             $request->validate([
                 'estado' => 'required|string|in:finalizada',
             ]);
@@ -148,7 +149,6 @@ class AtencionController extends Controller
     {
         $user = auth()->user();
 
-        // Solo el admin o el técnico asignado pueden eliminar la atención
         if ($user->hasRole('admin') ||
             ($user->hasRole('tecnico') && $atencion->solicitud->tecnico == $user->id)) {
             $atencion->delete();

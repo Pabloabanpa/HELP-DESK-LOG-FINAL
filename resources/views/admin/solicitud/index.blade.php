@@ -3,7 +3,7 @@
         <!-- Encabezado: Título y botón para crear nueva solicitud -->
         <div class="flex flex-col md:flex-row items-center justify-between mb-6">
             <div class="flex items-center space-x-3">
-                <!-- Ícono representativo de Solicitudes -->
+                <!-- Ícono de Solicitudes -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M9 8h6m2 8a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v8a2 2 0 002 2h8z" />
                 </svg>
@@ -11,14 +11,14 @@
             </div>
             <div class="mt-4 md:mt-0">
                 @can('admin.solicitud.create')
-                    <a href="{{ route('admin.solicitud.create') }}"
-                       class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
-                        <!-- Ícono de agregar -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                        </svg>
-                        Nueva Solicitud
-                    </a>
+                <a href="{{ route('admin.solicitud.create') }}"
+                   class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
+                    <!-- Ícono de agregar -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Nueva Solicitud
+                </a>
                 @endcan
             </div>
         </div>
@@ -30,10 +30,10 @@
                 <span class="text-gray-500">Solicitudes encontradas</span>
             </div>
             @can('admin.solicitud.edit')
-                <div class="p-4 bg-white shadow rounded">
-                    <span class="text-xl font-bold">{{ \App\Models\User::count() }}</span>
-                    <span class="text-gray-500">Usuarios registrados</span>
-                </div>
+            <div class="p-4 bg-white shadow rounded">
+                <span class="text-xl font-bold">{{ \App\Models\User::count() }}</span>
+                <span class="text-gray-500">Usuarios registrados</span>
+            </div>
             @endcan
         </div>
 
@@ -55,16 +55,16 @@
             </div>
             <!-- Gráfico de barras para Prioridades -->
             @can('admin.solicitud.edit')
-                <div class="bg-white p-4 shadow rounded">
-                    <h2 class="text-lg font-semibold mb-4">Prioridad de Solicitudes</h2>
-                    <div class="relative h-64">
-                        <canvas id="prioridadChart" class="w-full h-full"></canvas>
-                    </div>
+            <div class="bg-white p-4 shadow rounded">
+                <h2 class="text-lg font-semibold mb-4">Prioridad de Solicitudes</h2>
+                <div class="relative h-64">
+                    <canvas id="prioridadChart" class="w-full h-full"></canvas>
                 </div>
+            </div>
             @endcan
         </div>
 
-        <!-- Listado General de Solicitudes (paginado con 10 elementos por página) -->
+        <!-- Listado General de Solicitudes (con paginación de 10) -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mb-8">
             <h2 class="text-xl font-bold mb-4">Listado General de Solicitudes</h2>
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
@@ -76,9 +76,7 @@
                         <th class="px-4 py-3 text-left">Descripción</th>
                         <th class="px-4 py-3 text-left">Estado</th>
                         <th class="px-4 py-3 text-left">Prioridad</th>
-                        <!-- Columna: Motivo Rechazo -->
                         <th class="px-4 py-3 text-left">Motivo Rechazo</th>
-                        <!-- Columna: Tiempo de Respuesta -->
                         <th class="px-4 py-3 text-left">Tiempo de Respuesta</th>
                         <th class="px-4 py-3 text-left">Material Solicitado</th>
                         <th class="px-4 py-3 text-left">Atenciones</th>
@@ -88,7 +86,7 @@
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($solicitudes as $solicitud)
                         @php
-                            // Establecer clases de estilo según el estado
+                            // Clases para el estado
                             switch(strtolower($solicitud->estado)) {
                                 case 'pendiente': $estadoClasses = 'bg-yellow-100 text-yellow-800'; break;
                                 case 'en proceso': $estadoClasses = 'bg-blue-100 text-blue-800'; break;
@@ -97,14 +95,14 @@
                                 case 'rechazada': $estadoClasses = 'bg-red-100 text-red-800'; break;
                                 default: $estadoClasses = 'bg-gray-100 text-gray-800'; break;
                             }
-                            // Clases para prioridad
+                            // Clases para la prioridad
                             switch(strtolower($solicitud->prioridad)) {
                                 case 'alta': $prioridadClasses = 'bg-red-100 text-red-800'; break;
                                 case 'media': $prioridadClasses = 'bg-yellow-100 text-yellow-800'; break;
                                 case 'baja': $prioridadClasses = 'bg-green-100 text-green-800'; break;
                                 default: $prioridadClasses = 'bg-gray-100 text-gray-800'; break;
                             }
-                            // Tiempo de respuesta (días hábiles)
+                            // Calcular tiempo de respuesta (días hábiles)
                             $startDate = $solicitud->created_at;
                             $endDate = ($solicitud->estado === 'finalizada') ? $solicitud->updated_at : now();
                             $diasHabiles = $startDate->diffInWeekDays($endDate);
@@ -115,7 +113,7 @@
                             } else {
                                 $timeClasses = 'bg-green-100 text-green-800';
                             }
-                            // Material solicitado (recorre atenciones y anotaciones)
+                            // Material solicitado: recorrer las atenciones y extraer las anotaciones
                             $materialSolicitado = collect();
                             foreach ($solicitud->atenciones as $atencion) {
                                 if(isset($atencion->anotaciones) && $atencion->anotaciones->isNotEmpty()){
@@ -129,7 +127,9 @@
                             <td class="px-4 py-2">{{ $solicitud->tecnicoUser ? $solicitud->tecnicoUser->name : 'Sin asignar' }}</td>
                             <td class="px-4 py-2">
                                 @if($solicitud->archivo)
-                                    <a href="{{ route('archivo.mostrar', ['archivo' => $solicitud->archivo]) }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Ver Archivo</a>
+                                    <a href="{{ route('archivo.mostrar', ['archivo' => $solicitud->archivo]) }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                                        Ver Archivo
+                                    </a>
                                 @elseif($solicitud->equipo_id)
                                     <span class="text-sm text-gray-700 dark:text-gray-300">Código: {{ $solicitud->equipo_id }}</span>
                                 @else
@@ -156,6 +156,21 @@
                                 </span>
                             </td>
                             <td class="px-4 py-2">{{ $materialSolicitado ?: 'N/A' }}</td>
+                            <td class="px-4 py-2">
+                                @if($solicitud->atenciones->isNotEmpty())
+                                    <ul class="list-disc list-inside">
+                                        @foreach($solicitud->atenciones as $atencion)
+                                            <li class="truncate text-xs">
+                                                <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" target="_blank" class="text-blue-600 hover:underline">
+                                                    {{ $atencion->id }} - {{ Str::limit($atencion->descripcion, 30) }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <span class="text-sm text-gray-500">Sin atenciones</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-2 flex flex-col space-y-1">
                                 <!-- Botón Editar -->
                                 @can('admin.solicitud.edit')
@@ -206,33 +221,34 @@
                                         </div>
                                     </div>
                                 @endif
-                                <!-- Botón para Finalizar (solamente si la solicitud no está finalizada) -->
-                                @if($solicitud->estado !== 'finalizada')
-                                    <form action="{{ route('admin.solicitud.finalizar', $solicitud) }}" method="POST" class="flex items-center">
-                                        @csrf
-                                        <button type="submit" onclick="return confirm('¿Está seguro de finalizar esta solicitud?')" class="flex items-center text-green-600 hover:text-green-800">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Finalizar
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="text-green-600 font-bold">Finalizada</span>
-                                @endif
+                                <!-- Botón para Finalizar -->
+                                @can('admin.solicitud.edit')
+                                    @if($solicitud->estado !== 'finalizada')
+                                        <form action="{{ route('admin.solicitud.finalizar', $solicitud) }}" method="POST" class="flex items-center">
+                                            @csrf
+                                            <button type="submit" onclick="return confirm('¿Está seguro de finalizar esta solicitud?')" class="flex items-center text-green-600 hover:text-green-800">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                Finalizar
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-green-600 font-bold">Finalizada</span>
+                                    @endif
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-
         <!-- Paginación General -->
         <div class="mt-6">
             {{ $solicitudes->links() }}
         </div>
 
-        <!-- Sección de Seguimiento (listados independientes por estado) -->
+        <!-- Sección de Seguimiento -->
         @can('admin.solicitud.edit')
             <div class="mt-12">
                 <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Seguimiento de Solicitudes</h2>
@@ -263,7 +279,7 @@
                                         </td>
                                         <td class="px-4 py-2">{{ $sol->motivo_rechazo ?? 'N/A' }}</td>
                                         <td class="px-4 py-2">
-                                            <a href="{{ route('admin.solicitud.edit', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
+                                            <a href="{{ route('admin.solicitud.show', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -299,7 +315,7 @@
                                         </td>
                                         <td class="px-4 py-2">{{ $sol->motivo_rechazo ?? 'N/A' }}</td>
                                         <td class="px-4 py-2">
-                                            <a href="{{ route('admin.solicitud.edit', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
+                                            <a href="{{ route('admin.solicitud.show', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -335,7 +351,7 @@
                                         </td>
                                         <td class="px-4 py-2">{{ $sol->motivo_rechazo ?? 'N/A' }}</td>
                                         <td class="px-4 py-2">
-                                            <a href="{{ route('admin.solicitud.edit', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
+                                            <a href="{{ route('admin.solicitud.show', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -346,13 +362,12 @@
                 </div>
             </div>
         @endcan
-
     </div>
 
     <!-- Inclusión de Chart.js desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Gráfico de pastel para Estados
+        // Gráfico de pastel para la distribución de Estados
         var ctxEstado = document.getElementById('estadoChart').getContext('2d');
         var estadoChart = new Chart(ctxEstado, {
             type: 'pie',
@@ -366,7 +381,7 @@
             options: { responsive: true }
         });
 
-        // Gráfico de barras para Prioridades
+        // Gráfico de barras para la distribución de Prioridades
         var ctxPrioridad = document.getElementById('prioridadChart').getContext('2d');
         var prioridadChart = new Chart(ctxPrioridad, {
             type: 'bar',
