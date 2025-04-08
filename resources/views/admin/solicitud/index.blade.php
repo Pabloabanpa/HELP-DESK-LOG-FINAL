@@ -88,6 +88,8 @@
 
         <!-- Listado General de Solicitudes -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mb-8">
+            @can('admin.solicitud.edit') <h2 class="text-xl font-bold mb-4">Listado de todas la solicitudes enviadas</h2> @endcan
+            <h2 class="text-xl font-bold mb-4">Mis Solicitudes enviadas</h2>
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
@@ -255,6 +257,7 @@
         </div>
 
         <!-- Seguimiento de solicitudes por estado: Pendientes, En Proceso y Rechazadas -->
+        @can('admin.solicitud.edit')
         <div class="mb-8">
             <h2 class="text-xl font-bold mb-4">Seguimiento de Solicitudes</h2>
 
@@ -266,6 +269,7 @@
             @endphp
 
             <!-- Tabla: Solicitudes Pendientes -->
+            @can('admin.solicitud.edit')
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-2">Solicitudes Pendientes ({{ $solicitudesPendientes->count() }})</h3>
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -298,8 +302,10 @@
                     </table>
                 </div>
             </div>
+            @endcan
 
             <!-- Tabla: Solicitudes En Proceso -->
+            @can('admin.solicitud.edit')
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-2">Solicitudes En Proceso ({{ $solicitudesEnProceso->count() }})</h3>
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -331,8 +337,10 @@
                     </table>
                 </div>
             </div>
+            @endcan
 
             <!-- Tabla: Solicitudes Rechazadas -->
+            @can('admin.solicitud.edit')
             <div>
                 <h3 class="text-lg font-semibold mb-2">Solicitudes Rechazadas ({{ $solicitudesRechazadas->count() }})</h3>
                 <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -364,7 +372,9 @@
                     </table>
                 </div>
             </div>
+            @endcan
         </div>
+        @endcan
 
         <!-- Paginación del listado general -->
         <div class="mt-6">

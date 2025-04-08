@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Session;
 class Logout
 {
     /**
-     * Log the current user out of the application.
+     * Cierra la sesión del usuario actual y lo redirige al login.
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function __invoke()
     {
@@ -17,6 +19,7 @@ class Logout
         Session::invalidate();
         Session::regenerateToken();
 
-        return redirect('home');
+        // Redirige a la ruta de login
+        return redirect()->route('login');
     }
 }

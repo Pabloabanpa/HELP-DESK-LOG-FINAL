@@ -73,7 +73,7 @@
                         <th class="px-4 py-3">Cargo</th>
                         <th class="px-4 py-3">CI</th>
                         <th class="px-4 py-3">Celular</th>
-                        <th class="px-4 py-3">Oficina</th>
+                        <th class="px-4 py-3">Oficina/Secretaría</th>
                         <th class="px-4 py-3">Área</th>
                         <th class="px-4 py-3">Estado</th>
                         <th class="px-4 py-3">Fecha Nac.</th>
