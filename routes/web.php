@@ -18,10 +18,9 @@ use App\Http\Controllers\Admin\PrestamoController;
 | Rutas de Administrador
 |--------------------------------------------------------------------------
 |
-| Estas rutas están protegidas por los middleware 'auth' y 'verified' y tienen
-| el prefijo 'admin' y el nombre 'admin.'. Aquí se definen los recursos para
-| Usuarios, Solicitudes, Atenciones, Anotaciones, Tipo de Problema y Préstamos,
-| junto con rutas adicionales para acciones específicas (rechazar, finalizar, etc.).
+| Estas rutas están protegidas por 'auth' y 'verified' y tienen el prefijo 'admin'
+| y el nombre 'admin.'. Aquí se definen recursos para Usuarios, Solicitudes, Atenciones,
+| Anotaciones, Tipo de Problema y Préstamos, junto con rutas adicionales para acciones.
 |
 */
 Route::middleware(['auth', 'verified'])
@@ -31,8 +30,12 @@ Route::middleware(['auth', 'verified'])
         // CRUD de Usuarios
         Route::resource('user', UserController::class);
 
-        // CRUD de Solicitudes
+        // CRUD de Solicitudes (Listado general)
         Route::resource('solicitud', SolicitudController::class);
+
+        // NUEVA RUTA: Índice de Solicitudes Pendientes (solo pendientes)
+        Route::get('solicitud/pendientes', [SolicitudController::class, 'pendientes'])
+            ->name('solicitud.pendientes');
 
         // CRUD de Atenciones (solo para técnicos; se filtran en el controlador)
         Route::resource('atencion', AtencionController::class);
@@ -47,7 +50,7 @@ Route::middleware(['auth', 'verified'])
         // CRUD para Tipo Problema
         Route::resource('tipo_problema', Tipo_problemaController::class);
 
-        // Ruta para rechazar una solicitud (mantener consistencia en el controlador)
+        // Ruta para rechazar una solicitud (mantener consistencia)
         Route::post('solicitud/{solicitud}/rechazar', [SolicitudController::class, 'rechazar'])
             ->name('solicitud.rechazar');
 
@@ -68,9 +71,8 @@ Route::middleware(['auth', 'verified'])
 | Rutas de Archivos
 |--------------------------------------------------------------------------
 |
-| Ruta para servir archivos (por ejemplo, para solicitudes). Se aplica el
-| middleware 'auth' y 'verified', y se permite el uso de cualquier nombre de
-| archivo.
+| Ruta para servir archivos (por ejemplo, para solicitudes). Se aplica el middleware
+| 'auth' y 'verified' y se permite el uso de cualquier nombre de archivo.
 |
 */
 Route::middleware(['auth', 'verified'])
@@ -84,8 +86,7 @@ Route::middleware(['auth', 'verified'])
 |--------------------------------------------------------------------------
 |
 | Esta ruta, protegida con 'auth' y 'verified', consume un endpoint externo para
-| sincronizar los usuarios en segundo plano, según la lógica implementada en
-| ApiUserSyncController.
+| sincronizar los usuarios en segundo plano, según la lógica implementada en ApiUserSyncController.
 |
 */
 Route::middleware(['auth', 'verified'])
@@ -99,9 +100,8 @@ Route::middleware(['auth', 'verified'])
 | Ruta de Origen (Home)
 |--------------------------------------------------------------------------
 |
-| La ruta base ahora redirige directamente al formulario de login.
-| Esto asegura que, al acceder a la raíz de la aplicación, los usuarios
-| no autenticados sean dirigidos al inicio de sesión.
+| La ruta base redirige directamente al login. Esto asegura que los usuarios no autenticados
+| sean dirigidos al inicio de sesión.
 |
 */
 Route::get('', function () {
@@ -113,8 +113,7 @@ Route::get('', function () {
 | Ruta para el Dashboard
 |--------------------------------------------------------------------------
 |
-| La vista del dashboard se muestra en '/dashboard'. Está protegida con
-| 'auth' y 'verified'.
+| La vista del dashboard se muestra en '/dashboard'. Está protegida con 'auth' y 'verified'.
 |
 */
 Route::view('dashboard', 'dashboard')
@@ -126,8 +125,8 @@ Route::view('dashboard', 'dashboard')
 | Rutas de Autenticación y Configuración (Volt)
 |--------------------------------------------------------------------------
 |
-| Estas rutas están destinadas a configuraciones del usuario (perfil, contraseña,
-| apariencia, etc.) y redireccionan la ruta 'settings' a 'settings/profile'.
+| Estas rutas están destinadas a configuraciones del usuario (perfil, contraseña, apariencia, etc.)
+| y redireccionan la ruta 'settings' a 'settings/profile'.
 |
 */
 Route::middleware(['auth'])->group(function () {
@@ -142,8 +141,8 @@ Route::middleware(['auth'])->group(function () {
 | Ruta para Logout
 |--------------------------------------------------------------------------
 |
-| Esta ruta permite que el usuario cierre sesión. Se utiliza una petición POST
-| y se invoca el método 'destroy' del AuthenticatedSessionController.
+| Esta ruta permite que el usuario cierre sesión mediante una petición POST,
+| invocando el método 'destroy' del AuthenticatedSessionController.
 |
 */
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
@@ -169,7 +168,7 @@ Route::get('/pdf', function () {
 |--------------------------------------------------------------------------
 |
 | Este archivo contiene las rutas de autenticación generadas por Laravel Breeze,
-| Jetstream o la solución que utilices.
+| Jetstream u otra solución de autenticación que utilices.
 |
 */
 require __DIR__.'/auth.php';
