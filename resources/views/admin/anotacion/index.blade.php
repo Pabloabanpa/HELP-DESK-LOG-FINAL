@@ -21,7 +21,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left">Atención</th>
                         <th class="px-4 py-3 text-left">Descripción</th>
-                        <th class="px-4 py-3 text-left">Material Usado</th>
+                        <th class="px-4 py-3 text-left">Material Solicitado</th>
                         <th class="px-4 py-3 text-left">Fecha Registro</th>
                         <th class="px-4 py-3 text-left">Acciones</th>
                     </tr>

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('prestamos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('solicitante');
+            $table->foreign('solicitante')->references('id')->on('users')->onDelete('cascade');
             $table->text('descripcion')->nullable();
             $table->text('estado')->nullable();
             $table->timestamps();

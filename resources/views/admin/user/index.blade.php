@@ -11,7 +11,7 @@
             </div>
             <!-- Buscador -->
             <div class="mt-4 md:mt-0 flex items-center space-x-2">
-                <form id="searchForm" class="relative">
+                <form id="searchForm" class="relative" method="GET" action="{{ route('admin.user.index') }}">
                     <input type="text" id="userSearchInput" name="search" placeholder="Buscar usuarios..."
                            value="{{ request('search') }}"
                            class="pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
@@ -30,6 +30,7 @@
         <!-- Botones de acciones -->
         <div class="flex items-center justify-between mb-6">
             <div class="flex space-x-2">
+                <!-- Botón para sincronizar usuarios -->
                 <a href="{{ route('sync.users') }}"
                    class="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition">
                     <!-- Icono de sincronizar -->
@@ -39,6 +40,7 @@
                     </svg>
                     Sincronizar Usuarios
                 </a>
+                <!-- Botón para agregar un nuevo usuario -->
                 <a href="{{ route('admin.user.create') }}"
                    class="flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">
                     <!-- Icono de agregar -->
@@ -49,6 +51,17 @@
                 </a>
             </div>
         </div>
+
+        <!-- Mensajes de feedback (éxito o error) -->
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
+                {{ session('success') }}
+            </div>
+        @elseif(session('error'))
+            <div class="mb-4 p-4 bg-red-100 text-red-800 rounded">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <!-- Tabla de usuarios -->
         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -76,7 +89,7 @@
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->ci }}</td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->celular }}</td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->oficina }}</td>
-                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->area  }}</td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $user->area }}</td>
                             <td class="px-4 py-2">
                                 @if($user->estado == 'activo')
                                     <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
@@ -89,7 +102,11 @@
                                 @endif
                             </td>
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
-                                {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d/m/Y') }}
+                                @if($user->fecha_nacimiento)
+                                    {{ \Carbon\Carbon::parse($user->fecha_nacimiento)->format('d/m/Y') }}
+                                @else
+                                    N/A
+                                @endif
                             </td>
                             <td class="px-4 py-2 flex space-x-2">
                                 <!-- Botón Editar -->
@@ -105,11 +122,12 @@
                                 <form action="{{ route('admin.user.destroy', $user) }}" method="POST" class="flex items-center">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este usuario?')" class="flex items-center text-red-600 hover:text-red-800">
+                                    <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este usuario?')"
+                                            class="flex items-center text-red-600 hover:text-red-800">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7 4H4a1 1 0 000 2h1v10a2 2 0 002 2h6a2 2 0 002-2V6h1a1 1 0 100-2h-3l-.106-.447A1 1 0 0011 2H9zM7 6v10a1 1 0 001 1h4a1 1 0 001-1V6H7z" clip-rule="evenodd" />
                                         </svg>
-                                        Eliminar persona
+                                        Eliminar
                                     </button>
                                 </form>
                             </td>

@@ -10,7 +10,6 @@
                 <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Solicitudes</h1>
             </div>
             <div class="mt-4 md:mt-0">
-                <!-- Botón para crear nueva solicitud (según permisos) -->
                 @can('admin.solicitud.create')
                 <a href="{{ route('admin.solicitud.create') }}"
                    class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
@@ -24,39 +23,31 @@
             </div>
         </div>
 
-        <!-- Tarjetas de contadores: Solicitudes y Usuarios -->
+        <!-- Tarjetas de Contadores -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div class="p-4 bg-white shadow rounded">
-                <!-- Se utiliza $solicitudes->total() del paginador para indicar el total de solicitudes -->
                 <span class="text-xl font-bold">{{ $solicitudes->total() }}</span>
                 <span class="text-gray-500">Solicitudes encontradas</span>
             </div>
             <div class="p-4 bg-white shadow rounded">
-                <!-- Se cuenta el total de usuarios registrados. Se asume que el modelo User está disponible -->
                 <span class="text-xl font-bold">{{ \App\Models\User::count() }}</span>
                 <span class="text-gray-500">Usuarios registrados</span>
             </div>
         </div>
 
-        <!-- Preparación de datos para los gráficos y ordenamiento de solicitudes -->
         @php
-            // Se obtiene la colección de solicitudes correspondiente a la página actual
+            // Se obtiene la colección de solicitudes (de la página actual)
             $solicitudCollection = $solicitudes->getCollection();
 
-            // Para los gráficos, se agrupan y cuentan las solicitudes por estado y prioridad
+            // Agrupa y cuenta solicitudes para los gráficos
             $estadoCounts = $solicitudCollection->groupBy('estado')->map->count();
             $prioridadCounts = $solicitudCollection->groupBy('prioridad')->map->count();
 
-            /*
-             * Ordenamos las solicitudes por prioridad y, en caso de empate, por estado.
-             * Se definen arrays con el orden deseado:
-             *   - Prioridad: 'alta' primero, luego 'media' y finalmente 'baja'.
-             *   - Estado: 'pendiente', 'en proceso', 'finalizada' y 'cancelada'.
-             * Si algún valor no se encuentra, se le asigna un número alto (999) para que quede al final.
-             */
+            // Define el orden deseado para prioridad y estado
             $priorityOrder = ['alta' => 1, 'media' => 2, 'baja' => 3];
             $estadoOrder = ['pendiente' => 1, 'en proceso' => 2, 'finalizada' => 3, 'cancelada' => 4];
 
+            // Ordena la colección de solicitudes
             $sortedSolicitudes = $solicitudCollection->sort(function($a, $b) use ($priorityOrder, $estadoOrder) {
                 $aPriority = $priorityOrder[strtolower($a->prioridad)] ?? 999;
                 $bPriority = $priorityOrder[strtolower($b->prioridad)] ?? 999;
@@ -67,17 +58,21 @@
                 }
                 return $aPriority <=> $bPriority;
             });
-
-            // Se actualiza la colección del paginador con las solicitudes ordenadas
+            // Actualiza la colección del paginador con las solicitudes ordenadas
             $solicitudes->setCollection($sortedSolicitudes);
+
+            // Para seguimiento, filtramos las solicitudes según su estado
+            $solicitudesPendientes = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'pendiente');
+            $solicitudesEnProceso = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'en proceso');
+            // Consideramos "rechazada" o "cancelada" como rechazadas
+            $solicitudesRechazadas = $solicitudCollection->filter(fn($s) => in_array(strtolower($s->estado), ['rechazada', 'cancelada']));
         @endphp
 
-        <!-- Sección de Gráficos -->
+        <!-- Sección de Gráficas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <!-- Gráfico de pastel para Estados -->
             <div class="bg-white p-4 shadow rounded">
                 <h2 class="text-lg font-semibold mb-4">Estado de Solicitudes</h2>
-                <!-- Contenedor con altura fija para evitar expansión infinita -->
                 <div class="relative h-64">
                     <canvas id="estadoChart" class="w-full h-full"></canvas>
                 </div>
@@ -85,17 +80,15 @@
             <!-- Gráfico de barras para Prioridades -->
             <div class="bg-white p-4 shadow rounded">
                 <h2 class="text-lg font-semibold mb-4">Prioridad de Solicitudes</h2>
-                <!-- Contenedor con altura fija para evitar expansión infinita -->
                 <div class="relative h-64">
                     <canvas id="prioridadChart" class="w-full h-full"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Tabla de Solicitudes -->
-        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <!-- Listado General de Solicitudes -->
+        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mb-8">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-                <!-- Cabecera de la tabla -->
                 <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
                     <tr>
                         <th class="px-4 py-3 text-left">Solicitante</th>
@@ -104,15 +97,15 @@
                         <th class="px-4 py-3 text-left">Descripción</th>
                         <th class="px-4 py-3 text-left">Estado</th>
                         <th class="px-4 py-3 text-left">Prioridad</th>
+                        <th class="px-4 py-3 text-left">Material Solicitado</th>
                         <th class="px-4 py-3 text-left">Atenciones</th>
                         <th class="px-4 py-3 text-left">Acciones</th>
                     </tr>
                 </thead>
-                <!-- Cuerpo de la tabla -->
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                     @foreach ($solicitudes as $solicitud)
                         @php
-                            // Asigna clases CSS para el badge según el estado
+                            // Clases de estilo según estado
                             switch($solicitud->estado) {
                                 case 'pendiente':
                                     $estadoClasses = 'bg-yellow-100 text-yellow-800';
@@ -124,13 +117,14 @@
                                     $estadoClasses = 'bg-green-100 text-green-800';
                                     break;
                                 case 'cancelada':
+                                case 'rechazada':
                                     $estadoClasses = 'bg-red-100 text-red-800';
                                     break;
                                 default:
                                     $estadoClasses = 'bg-gray-100 text-gray-800';
                                     break;
                             }
-                            // Asigna clases CSS para el badge según la prioridad
+                            // Clases de estilo según prioridad
                             switch($solicitud->prioridad) {
                                 case 'alta':
                                     $prioridadClasses = 'bg-red-100 text-red-800';
@@ -145,6 +139,15 @@
                                     $prioridadClasses = 'bg-gray-100 text-gray-800';
                                     break;
                             }
+
+                            // Procesar Material Solicitado: se recorre atenciones y anotaciones
+                            $materialSolicitado = collect();
+                            foreach($solicitud->atenciones as $atencion) {
+                                if(isset($atencion->anotaciones) && $atencion->anotaciones->isNotEmpty()) {
+                                    $materialSolicitado = $materialSolicitado->merge($atencion->anotaciones->pluck('material_usado'));
+                                }
+                            }
+                            $materialSolicitado = $materialSolicitado->unique()->filter()->implode(', ');
                         @endphp
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                             <td class="px-4 py-2 text-gray-900 dark:text-gray-100">{{ $solicitud->solicitanteUser->name }}</td>
@@ -173,11 +176,14 @@
                                     {{ $solicitud->prioridad ?? 'N/A' }}
                                 </span>
                             </td>
+                            <td class="px-4 py-2 text-gray-900 dark:text-gray-100">
+                                {{ $materialSolicitado ?: 'N/A' }}
+                            </td>
                             <td class="px-4 py-2">
                                 @if($solicitud->atenciones->isNotEmpty())
                                     <ul class="list-disc list-inside">
                                         @foreach($solicitud->atenciones as $atencion)
-                                            <li class="truncate">
+                                            <li class="truncate text-xs">
                                                 <a href="{{ route('admin.atencion.anotaciones', $atencion) }}" target="_blank" class="text-blue-600 hover:underline">
                                                     {{ $atencion->id }} - {{ Str::limit($atencion->descripcion, 30) }}
                                                 </a>
@@ -188,7 +194,8 @@
                                     <span class="text-sm text-gray-500">Sin atenciones</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-2 flex space-x-2">
+                            <td class="px-4 py-2 flex flex-col space-y-1">
+                                <!-- Botón Editar -->
                                 @can('admin.solicitud.edit')
                                 <a href="{{ route('admin.solicitud.edit', $solicitud) }}" class="flex items-center text-blue-600 hover:text-blue-800">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -199,6 +206,7 @@
                                 </a>
                                 @endcan
 
+                                <!-- Botón Eliminar -->
                                 @can('admin.solicitud.destroy')
                                 <form action="{{ route('admin.solicitud.destroy', $solicitud) }}" method="POST" class="flex items-center">
                                     @csrf
@@ -212,6 +220,7 @@
                                 </form>
                                 @endcan
 
+                                <!-- Botón de Rechazar para técnico asignado -->
                                 @if(auth()->user()->hasRole('tecnico') && $solicitud->tecnico == auth()->user()->id && $solicitud->estado !== 'pendiente reasignacion')
                                 <form action="{{ route('admin.solicitud.rechazar', $solicitud) }}" method="POST" class="flex items-center">
                                     @csrf
@@ -223,6 +232,21 @@
                                     </button>
                                 </form>
                                 @endif
+
+                                <!-- Botón para Finalizar la solicitud (solo si no está finalizada) -->
+                                @if($solicitud->estado !== 'finalizada')
+                                <form action="{{ route('admin.solicitud.finalizar', $solicitud) }}" method="POST" class="flex items-center">
+                                    @csrf
+                                    <button type="submit" onclick="return confirm('¿Está seguro de finalizar esta solicitud?')" class="flex items-center text-green-600 hover:text-green-800">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Finalizar
+                                    </button>
+                                </form>
+                                @else
+                                <span class="text-green-600 font-bold">Finalizada</span>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -230,13 +254,125 @@
             </table>
         </div>
 
-        <!-- Paginación -->
+        <!-- Seguimiento de solicitudes por estado: Pendientes, En Proceso y Rechazadas -->
+        <div class="mb-8">
+            <h2 class="text-xl font-bold mb-4">Seguimiento de Solicitudes</h2>
+
+            @php
+                $solicitudesPendientes = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'pendiente');
+                $solicitudesEnProceso = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'en proceso');
+                // Consideramos rechazadas aquellas con estado 'rechazada' o 'cancelada'
+                $solicitudesRechazadas = $solicitudCollection->filter(fn($s) => in_array(strtolower($s->estado), ['rechazada', 'cancelada']));
+            @endphp
+
+            <!-- Tabla: Solicitudes Pendientes -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Solicitudes Pendientes ({{ $solicitudesPendientes->count() }})</h3>
+                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Solicitante</th>
+                                <th class="px-4 py-3 text-left">Descripción</th>
+                                <th class="px-4 py-3 text-left">Estado</th>
+                                <th class="px-4 py-3 text-left">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @foreach ($solicitudesPendientes as $sol)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                    <td class="px-4 py-2">{{ $sol->solicitanteUser->name }}</td>
+                                    <td class="px-4 py-2">{{ $sol->descripcion }}</td>
+                                    <td class="px-4 py-2">
+                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800">
+                                            {{ $sol->estado }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <!-- Ejemplo de acción: Ver detalle -->
+                                        <a href="{{ route('admin.solicitud.show', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabla: Solicitudes En Proceso -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Solicitudes En Proceso ({{ $solicitudesEnProceso->count() }})</h3>
+                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Solicitante</th>
+                                <th class="px-4 py-3 text-left">Descripción</th>
+                                <th class="px-4 py-3 text-left">Estado</th>
+                                <th class="px-4 py-3 text-left">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @foreach ($solicitudesEnProceso as $sol)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                    <td class="px-4 py-2">{{ $sol->solicitanteUser->name }}</td>
+                                    <td class="px-4 py-2">{{ $sol->descripcion }}</td>
+                                    <td class="px-4 py-2">
+                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800">
+                                            {{ $sol->estado }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <a href="{{ route('admin.solicitud.show', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabla: Solicitudes Rechazadas -->
+            <div>
+                <h3 class="text-lg font-semibold mb-2">Solicitudes Rechazadas ({{ $solicitudesRechazadas->count() }})</h3>
+                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Solicitante</th>
+                                <th class="px-4 py-3 text-left">Descripción</th>
+                                <th class="px-4 py-3 text-left">Estado</th>
+                                <th class="px-4 py-3 text-left">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @foreach ($solicitudesRechazadas as $sol)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                                    <td class="px-4 py-2">{{ $sol->solicitanteUser->name }}</td>
+                                    <td class="px-4 py-2">{{ $sol->descripcion }}</td>
+                                    <td class="px-4 py-2">
+                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
+                                            {{ $sol->estado }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <a href="{{ route('admin.solicitud.show', $sol) }}" class="text-blue-600 hover:underline">Ver</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paginación del listado general -->
         <div class="mt-6">
             {{ $solicitudes->links() }}
         </div>
     </div>
 
-    <!-- Inclusión de Chart.js desde CDN para generación de gráficos -->
+    <!-- Inclusión de Chart.js desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Gráfico de pastel para la distribución de Estados

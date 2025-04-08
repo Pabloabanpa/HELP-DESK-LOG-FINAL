@@ -66,9 +66,9 @@
                         </flux:navlist.item>
                     @endcan
 
-                    @can('admin.solicitud.index')
-                    <flux:navlist.item icon="ticket" :href="route('admin.solicitud.index')"
-                        :current="request()->routeIs('admin.solicitud.index')" wire:navigate>
+                    @can('admin.prestamo.index')
+                    <flux:navlist.item icon="ticket" :href="route('admin.prestamo.index')"
+                        :current="request()->routeIs('admin.prestamo.index')" wire:navigate>
                         {{ __('Prestamos') }}
                     </flux:navlist.item>
                 @endcan

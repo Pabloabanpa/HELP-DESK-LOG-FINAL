@@ -89,7 +89,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             required
             autofocus
             autocomplete="email"
-            placeholder="email@example.com"
+            placeholder="email@ejemplo.com"
         />
 
         <!-- Password -->
@@ -100,7 +100,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 type="password"
                 required
                 autocomplete="current-password"
-                :placeholder="__('Password')"
+                :placeholder="__('Introdice tu contraseña')"
             />
 
         </div>
@@ -115,7 +115,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     @if (Route::has('register'))
         <div class="space-x-1 text-center text-sm text-zinc-600 dark:text-zinc-400">
-            {{ __('Don\'t have an account?') }}
+            {{ __('No tienes una cuenta?') }}
             <flux:link :href="route('register')" wire:navigate>{{ __('Registrarse') }}</flux:link>
         </div>
     @endif

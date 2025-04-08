@@ -27,7 +27,11 @@ class User extends Authenticatable
         'oficina',
         'fecha_nacimiento',
         'area', // Campo agregado para el área del usuario
+        'idpersona', // Nuevo campo para almacenar el id externo
+        'latitude',  // Nuevo campo para almacenar latitud
+        'longitude', // Nuevo campo para almacenar longitud
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.

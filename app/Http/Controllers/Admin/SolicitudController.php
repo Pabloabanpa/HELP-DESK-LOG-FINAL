@@ -28,22 +28,22 @@ class SolicitudController extends Controller
         }
 
         $user = auth()->user();
-        $solicitudes = collect([]); // Asignación por defecto, en caso de que el usuario no cumpla ninguna condición
+        $solicitudes = collect([]); // Valor por defecto
 
         if ($user->hasRole('admin') || $user->hasRole('secretaria')) {
             // Admin y secretaria ven todas las solicitudes
-            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones'])
+            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
                 ->latest()
                 ->paginate(10);
         } elseif ($user->hasRole('tecnico')) {
             // El técnico ve solo las solicitudes asignadas a él
-            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones'])
+            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
                 ->where('tecnico', $user->id)
                 ->latest()
                 ->paginate(10);
         } elseif ($user->hasRole('solicitante')) {
             // El solicitante ve solo las solicitudes que él registró
-            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones'])
+            $solicitudes = Solicitud::with(['solicitanteUser', 'tecnicoUser', 'atenciones.anotaciones'])
                 ->where('solicitante', $user->id)
                 ->latest()
                 ->paginate(10);
@@ -212,6 +212,17 @@ class SolicitudController extends Controller
 
     return view('admin.solicitud.dashboard', compact('solicitudes', 'totalUsuarios'));
 }
+
+public function finalizar(Request $request, Solicitud $solicitud)
+{
+    // Actualizamos la solicitud estableciendo su estado a "finalizada"
+    $solicitud->update(['estado' => 'finalizada']);
+
+    // Redirige al listado con un mensaje de éxito
+    return redirect()->route('admin.solicitud.index')
+        ->with('success', 'La solicitud ha sido finalizada exitosamente.');
+}
+
 
 
 
