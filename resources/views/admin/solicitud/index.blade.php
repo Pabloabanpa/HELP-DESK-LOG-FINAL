@@ -29,10 +29,12 @@
                 <span class="text-xl font-bold">{{ $solicitudes->total() }}</span>
                 <span class="text-gray-500">Solicitudes encontradas</span>
             </div>
+            @can('admin.solicitud.edit')
             <div class="p-4 bg-white shadow rounded">
                 <span class="text-xl font-bold">{{ \App\Models\User::count() }}</span>
                 <span class="text-gray-500">Usuarios registrados</span>
             </div>
+            @endcan
         </div>
 
         @php
@@ -78,12 +80,14 @@
                 </div>
             </div>
             <!-- Gráfico de barras para Prioridades -->
+            @can('admin.solicitud.edit')
             <div class="bg-white p-4 shadow rounded">
                 <h2 class="text-lg font-semibold mb-4">Prioridad de Solicitudes</h2>
                 <div class="relative h-64">
                     <canvas id="prioridadChart" class="w-full h-full"></canvas>
                 </div>
             </div>
+            @endcan
         </div>
 
         <!-- Listado General de Solicitudes -->

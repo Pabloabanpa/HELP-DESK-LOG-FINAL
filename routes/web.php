@@ -18,10 +18,10 @@ use App\Http\Controllers\Admin\PrestamoController;
 | Rutas de Administrador
 |--------------------------------------------------------------------------
 |
-| Estas rutas están protegidas por los middleware 'auth' y 'verified' y tienen el
-| prefijo 'admin' y el nombre 'admin.'. Aquí se definen los recursos para Usuarios,
-| Solicitudes, Atenciones, Anotaciones, Tipo de Problema y Préstamos, junto con
-| rutas adicionales para acciones específicas (rechazar, finalizar, etc.).
+| Estas rutas están protegidas por los middleware 'auth' y 'verified' y tienen
+| el prefijo 'admin' y el nombre 'admin.'. Aquí se definen los recursos para
+| Usuarios, Solicitudes, Atenciones, Anotaciones, Tipo de Problema y Préstamos,
+| junto con rutas adicionales para acciones específicas (rechazar, finalizar, etc.).
 |
 */
 Route::middleware(['auth', 'verified'])
@@ -68,8 +68,9 @@ Route::middleware(['auth', 'verified'])
 | Rutas de Archivos
 |--------------------------------------------------------------------------
 |
-| Ruta para servir archivos (por ejemplo, para solicitudes). Se aplica el middleware
-| 'auth' y 'verified', y se permite el uso de cualquier nombre de archivo.
+| Ruta para servir archivos (por ejemplo, para solicitudes). Se aplica el
+| middleware 'auth' y 'verified', y se permite el uso de cualquier nombre de
+| archivo.
 |
 */
 Route::middleware(['auth', 'verified'])
@@ -83,7 +84,7 @@ Route::middleware(['auth', 'verified'])
 |--------------------------------------------------------------------------
 |
 | Esta ruta, protegida con 'auth' y 'verified', consume un endpoint externo para
-| sincronizar los usuarios en segundo plano. Se invoca el método syncUsers del
+| sincronizar los usuarios en segundo plano, según la lógica implementada en
 | ApiUserSyncController.
 |
 */
@@ -95,16 +96,27 @@ Route::middleware(['auth', 'verified'])
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Home y Dashboard
+| Ruta de Origen (Home)
 |--------------------------------------------------------------------------
 |
-| La ruta base y la vista para el dashboard se definen aquí.
+| La ruta base ahora redirige directamente al formulario de login.
+| Esto asegura que, al acceder a la raíz de la aplicación, los usuarios
+| no autenticados sean dirigidos al inicio de sesión.
 |
 */
 Route::get('', function () {
-    return view('dashboard');
+    return redirect()->route('login');
 })->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| Ruta para el Dashboard
+|--------------------------------------------------------------------------
+|
+| La vista del dashboard se muestra en '/dashboard'. Está protegida con
+| 'auth' y 'verified'.
+|
+*/
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -130,8 +142,8 @@ Route::middleware(['auth'])->group(function () {
 | Ruta para Logout
 |--------------------------------------------------------------------------
 |
-| Esta ruta permite que el usuario cierre sesión. Se utiliza una petición POST y
-| se invoca el método 'destroy' del AuthenticatedSessionController.
+| Esta ruta permite que el usuario cierre sesión. Se utiliza una petición POST
+| y se invoca el método 'destroy' del AuthenticatedSessionController.
 |
 */
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
@@ -153,7 +165,7 @@ Route::get('/pdf', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Incluir Rutas de Autenticación
+| Inclusión de Rutas de Autenticación
 |--------------------------------------------------------------------------
 |
 | Este archivo contiene las rutas de autenticación generadas por Laravel Breeze,
