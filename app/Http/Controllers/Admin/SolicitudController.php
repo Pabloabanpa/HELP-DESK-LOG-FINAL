@@ -275,25 +275,78 @@ class SolicitudController extends Controller
         return redirect()->back()->with('success', 'Se han reenviado las solicitudes pendientes por más de 7 días.');
     }
     public function reenviarSolicitud(Solicitud $solicitud)
-{
-    // Permite reenviar la solicitud solo si no tiene técnico asignado.
-    if (!is_null($solicitud->tecnico)) {
-        return redirect()->back()->with('error', 'Esta solicitud ya tiene un técnico asignado, no se puede reenviar individualmente.');
+    {
+        // Permite reenviar la solicitud solo si no tiene técnico asignado.
+        if (!is_null($solicitud->tecnico)) {
+            return redirect()->back()->with('error', 'Esta solicitud ya tiene un técnico asignado, no se puede reenviar individualmente.');
+        }
+
+        // Convertir la solicitud a array y eliminar campos que se generan automáticamente.
+        $data = $solicitud->toArray();
+        unset($data['id'], $data['created_at'], $data['updated_at']);
+
+        // Puedes reiniciar el estado o dejarlo como "pendiente".
+        $data['estado'] = 'pendiente';
+        $data['created_at'] = now();
+        $data['updated_at'] = now();
+
+        Solicitud::create($data);
+
+        return redirect()->back()->with('success', 'La solicitud ha sido reenviada exitosamente.');
     }
 
-    // Convertir la solicitud a array y eliminar campos que se generan automáticamente.
-    $data = $solicitud->toArray();
-    unset($data['id'], $data['created_at'], $data['updated_at']);
+    public function reporteEstadisticas(Request $request)
+    {
+        $fechaInicio = $request->input('inicio');
+        $fechaFin = $request->input('fin');
 
-    // Puedes reiniciar el estado o dejarlo como "pendiente".
-    $data['estado'] = 'pendiente';
-    $data['created_at'] = now();
-    $data['updated_at'] = now();
+        // Validación básica de fechas
+        $request->validate([
+            'inicio' => 'required|date',
+            'fin' => 'required|date|after_or_equal:inicio',
+        ]);
 
-    Solicitud::create($data);
+        // Usuarios con rol técnico
+        $tecnicos = User::role('tecnico')->get();
 
-    return redirect()->back()->with('success', 'La solicitud ha sido reenviada exitosamente.');
-}
+        $estadisticasTecnicos = [];
+
+        foreach ($tecnicos as $tecnico) {
+            $atendidas = Solicitud::where('tecnico', $tecnico->id)
+                ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+                ->count();
+
+            $concluidas = Solicitud::where('tecnico', $tecnico->id)
+                ->where('estado', 'finalizada')
+                ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+                ->count();
+
+            $estadisticasTecnicos[] = [
+                'nombre' => $tecnico->name,
+                'area' => $tecnico->area,
+                'atendidas' => $atendidas,
+                'concluidas' => $concluidas,
+            ];
+        }
+
+        // Estados generales
+        $estadisticasEstados = Solicitud::selectRaw('estado, COUNT(*) as total')
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
+        // CAMBIO: nueva ruta de la vista PDF
+        $pdf = PDF::loadView('admin.solicitud.reporte.estadisticas', compact(
+            'estadisticasTecnicos',
+            'estadisticasEstados',
+            'fechaInicio',
+            'fechaFin'
+        ));
+
+        return $pdf->download('estadisticas-solicitudes.pdf');
+    }
+
+
 
 
 

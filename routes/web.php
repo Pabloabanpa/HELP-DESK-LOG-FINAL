@@ -30,6 +30,9 @@ Route::middleware(['auth', 'verified'])
     ->group(function () {
         // CRUD de Usuarios
         Route::resource('user', UserController::class);
+        
+        Route::get('solicitud/reporte-estadisticas', [SolicitudController::class, 'reporteEstadisticas'])
+        ->name('solicitud.reporte.estadisticas');
 
         // CRUD de Solicitudes (Listado general)
         Route::resource('solicitud', SolicitudController::class);
@@ -74,7 +77,14 @@ Route::middleware(['auth', 'verified'])
         Route::post('solicitud/{solicitud}/reenviar', [SolicitudController::class, 'reenviarSolicitud'])
             ->name('solicitud.reenviar');
 
+
+
+
+
+
+
         Route::resource('roles', RoleController::class);
+
     });
 
 

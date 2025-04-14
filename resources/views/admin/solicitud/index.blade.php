@@ -15,6 +15,9 @@
                         </svg>
                         Nueva Solicitud
                     </a>
+
+                    @endcan
+                    @can('admin.solicitud.edit')
                     <a href="{{ route('admin.solicitud.index') }}"
                        class="flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg shadow hover:bg-red-700 transition duration-200">
                         <!-- Ícono PDF -->
@@ -25,6 +28,29 @@
                         Generar Reporte PDF
                     </a>
                 @endcan
+
+                @can('admin.solicitud.edit')
+                <form method="GET" action="{{ route('admin.solicitud.reporte.estadisticas') }}" class="flex items-center gap-2 mb-6">
+                    <label for="inicio">Desde:</label>
+                    <input type="date" name="inicio" id="inicio" required class="border rounded px-2 py-1">
+
+                    <label for="fin">Hasta:</label>
+                    <input type="date" name="fin" id="fin" required class="border rounded px-2 py-1">
+
+                    <button type="submit"
+                            class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Descargar Estadísticas PDF
+                    </button>
+                </form>
+
+                @endcan
+
+
             </div>
 
 
