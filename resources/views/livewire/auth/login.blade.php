@@ -40,7 +40,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        // 🔁 Redirige al dashboard y recarga la página
+        $this->js('window.location.href = "' . route('admin.solicitud.index') . '"');
     }
 
     /**
@@ -84,7 +85,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <!-- Email Address -->
         <flux:input
             wire:model="email"
-            :label="__('Correo Electronico')"
+            :label="__('Correo Electrónico')"
             type="email"
             required
             autofocus
@@ -100,9 +101,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 type="password"
                 required
                 autocomplete="current-password"
-                :placeholder="__('Introdice tu contraseña')"
+                :placeholder="__('Introduce tu contraseña')"
             />
-
         </div>
 
         <!-- Remember Me -->
@@ -115,9 +115,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     @if (Route::has('register'))
         <div class="space-x-1 text-center text-sm text-zinc-600 dark:text-zinc-400">
-            {{ __('No tienes una cuenta?') }}
+            {{ __('¿No tienes una cuenta?') }}
             <flux:link :href="route('register')" wire:navigate>{{ __('Registrarse') }}</flux:link>
         </div>
     @endif
-
 </div>
