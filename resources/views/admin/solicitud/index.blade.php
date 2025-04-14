@@ -3,30 +3,30 @@
     <div x-data="{ showModal: false, lat: '', lng: '' }" class="relative">
         <div class="max-w-7xl mx-auto px-4 py-6">
             <!-- Encabezado: Título y botón para crear nueva solicitud -->
-            <div class="flex flex-col md:flex-row items-center justify-between mb-6">
-                <div class="flex items-center space-x-3">
-                    <!-- Ícono de Solicitudes -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M9 12h6m-6 4h6M9 8h6m2 8a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v8a2 2 0 002 2h8z" />
-                    </svg>
-                    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Solicitudes</h1>
-                </div>
-                <div class="mt-4 md:mt-0">
-                    @can('admin.solicitud.create')
-                        <a href="{{ route('admin.solicitud.create') }}"
-                           class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 transition duration-200">
-                            <!-- Ícono de agregar -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                      clip-rule="evenodd" />
-                            </svg>
-                            Nueva Solicitud
-                        </a>
-                    @endcan
-                </div>
+            <div class="mt-4 md:mt-0 flex flex-col md:flex-row gap-4">
+                @can('admin.solicitud.create')
+                    <a href="{{ route('admin.solicitud.create') }}"
+                       class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition duration-200">
+                        <!-- Ícono de más -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                        Nueva Solicitud
+                    </a>
+                    <a href="{{ route('admin.solicitud.index') }}"
+                       class="flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg shadow hover:bg-red-700 transition duration-200">
+                        <!-- Ícono PDF -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4v16m8-8H4" />
+                        </svg>
+                        Generar Reporte PDF
+                    </a>
+                @endcan
             </div>
+
 
             <!-- Tarjetas de Contadores -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -80,6 +80,15 @@
                             <canvas id="prioridadChart" class="w-full h-full"></canvas>
                         </div>
                     </div>
+                @endcan
+                <!-- Tabla: Solicitudes por Areas -->
+                @can('admin.solicitud.edit')
+                <div class="bg-white p-4 shadow rounded">
+                    <h2 class="text-lg font-semibold mb-4">Solicitudes por Área</h2>
+                    <div class="relative h-64">
+                        <canvas id="areaChart"></canvas>
+                    </div>
+                </div>
                 @endcan
             </div>
 
@@ -283,6 +292,7 @@
             <h2 class="text-xl font-bold mb-4">Seguimiento de Solicitudes</h2>
 
             @php
+                $areaCounts = $solicitudCollection->groupBy(fn($s) => optional($s->solicitanteUser)->area)->map->count();
                 $solicitudesPendientes = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'pendiente');
                 $solicitudesEnProceso = $solicitudCollection->filter(fn($s) => strtolower($s->estado) == 'en proceso');
                 // Consideramos rechazadas aquellas con estado 'rechazada' o 'cancelada'
@@ -394,6 +404,8 @@
                 </div>
             </div>
             @endcan
+
+
         </div>
         @endcan
     </div>
@@ -433,6 +445,32 @@
                     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
                 }
             });
+
+
+        var ctxArea = document.getElementById('areaChart').getContext('2d');
+        new Chart(ctxArea, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($areaCounts->keys()) !!},
+                datasets: [{
+                    label: 'Solicitudes por Área',
+                    data: {!! json_encode($areaCounts->values()) !!},
+                    backgroundColor: '#6366F1'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
         @endcan
     </script>
 </x-layouts.app>

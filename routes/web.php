@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AnotacionController;
 use App\Http\Controllers\Admin\Tipo_problemaController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\PrestamoController;
+use App\Http\Controllers\Admin\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +73,8 @@ Route::middleware(['auth', 'verified'])
         // NUEVA RUTA: Para reenviar una solicitud individual
         Route::post('solicitud/{solicitud}/reenviar', [SolicitudController::class, 'reenviarSolicitud'])
             ->name('solicitud.reenviar');
+
+        Route::resource('roles', RoleController::class);
     });
 
 
