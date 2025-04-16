@@ -16,4 +16,13 @@ class TipoProblema extends Model
         'descripcion',
         'area_solucion'
         ];
+
+
+
+public function solicitudes()
+{
+    return $this->hasMany(\App\Models\Solicitud::class, 'tipo_problema');
+}
+
+
 }

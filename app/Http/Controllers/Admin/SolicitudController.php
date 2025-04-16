@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\admin;
+namespace App\Http\Controllers\Admin;
 
 use PDF;
 use App\Http\Controllers\Controller;
@@ -9,6 +9,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Spatie\Permission\Models\Role;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\EstadisticasSolicitudExport;
+use App\Models\TipoProblema;
+
 
 class SolicitudController extends Controller
 {
@@ -295,30 +299,30 @@ class SolicitudController extends Controller
         return redirect()->back()->with('success', 'La solicitud ha sido reenviada exitosamente.');
     }
 
-    public function reporteEstadisticas(Request $request)
+    public function generarEstadisticas(Request $request)
     {
-        $fechaInicio = $request->input('inicio');
-        $fechaFin = $request->input('fin');
-
-        // Validación básica de fechas
         $request->validate([
             'inicio' => 'required|date',
             'fin' => 'required|date|after_or_equal:inicio',
+            'formato' => 'required|in:pdf,excel',
         ]);
 
-        // Usuarios con rol técnico
-        $tecnicos = User::role('tecnico')->get();
+        $inicio = $request->input('inicio');
+        $fin = $request->input('fin');
 
+        // Técnicos
+        $tecnicos = User::role('tecnico')->get();
         $estadisticasTecnicos = [];
+        $estadisticasAreas = [];
 
         foreach ($tecnicos as $tecnico) {
             $atendidas = Solicitud::where('tecnico', $tecnico->id)
-                ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+                ->whereBetween('created_at', [$inicio, $fin])
                 ->count();
 
             $concluidas = Solicitud::where('tecnico', $tecnico->id)
                 ->where('estado', 'finalizada')
-                ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+                ->whereBetween('created_at', [$inicio, $fin])
                 ->count();
 
             $estadisticasTecnicos[] = [
@@ -327,31 +331,63 @@ class SolicitudController extends Controller
                 'atendidas' => $atendidas,
                 'concluidas' => $concluidas,
             ];
+
+            if (!isset($estadisticasAreas[$tecnico->area])) {
+                $estadisticasAreas[$tecnico->area] = 0;
+            }
+            $estadisticasAreas[$tecnico->area] += $atendidas;
         }
 
-        // Estados generales
+        // Resumen por estado
         $estadisticasEstados = Solicitud::selectRaw('estado, COUNT(*) as total')
-            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->whereBetween('created_at', [$inicio, $fin])
             ->groupBy('estado')
             ->pluck('total', 'estado');
 
-        // CAMBIO: nueva ruta de la vista PDF
-        $pdf = PDF::loadView('admin.solicitud.reporte.estadisticas', compact(
-            'estadisticasTecnicos',
-            'estadisticasEstados',
-            'fechaInicio',
-            'fechaFin'
-        ));
+        // Tipos de problema con mayor incidencia
+        $problemas = TipoProblema::withCount(['solicitudes' => function ($q) use ($inicio, $fin) {
+            $q->whereBetween('created_at', [$inicio, $fin]);
+        }])->orderByDesc('solicitudes_count')->take(10)->get();
 
-        return $pdf->download('estadisticas-solicitudes.pdf');
+        // Solicitudes sin técnico
+        $sinTecnico = Solicitud::whereNull('tecnico')
+            ->whereBetween('created_at', [$inicio, $fin])
+            ->count();
+
+        // Tiempo promedio de atención
+        $tiempoPromedio = Solicitud::where('estado', 'finalizada')
+            ->whereBetween('created_at', [$inicio, $fin])
+            ->get()
+            ->map(function ($s) {
+                return $s->created_at->diffInDays($s->updated_at);
+            })->avg();
+
+        $data = [
+            'fechaInicio' => $inicio,
+            'fechaFin' => $fin,
+            'estadisticasTecnicos' => $estadisticasTecnicos,
+            'estadisticasEstados' => $estadisticasEstados,
+            'atencionesPorArea' => $estadisticasAreas,
+            'tiposProblemas' => $problemas,
+            'sinTecnico' => $sinTecnico,
+            'tiempoPromedio' => $tiempoPromedio,
+        ];
+
+        if ($request->input('formato') === 'excel') {
+            // Generar HTML de la vista Excel
+            $html = view('admin.solicitud.reporte.estadisticas_excel', $data)->render();
+
+            // Guardar temporalmente como archivo .xls
+            $filePath = storage_path('app/public/estadisticas_solicitudes.xls');
+            file_put_contents($filePath, $html);
+
+            // Forzar descarga
+            return response()->download($filePath, 'estadisticas_solicitudes.xls')->deleteFileAfterSend(true);
+        } else {
+            $pdf = \PDF::loadView('admin.solicitud.reporte.estadisticas', $data);
+            return $pdf->stream('estadisticas_solicitudes.pdf');
+        }
     }
-
-
-
-
-
-
-
 
 
 }

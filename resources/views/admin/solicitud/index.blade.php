@@ -2,56 +2,85 @@
     <!-- Contenedor Alpine.js para el modal -->
     <div x-data="{ showModal: false, lat: '', lng: '' }" class="relative">
         <div class="max-w-7xl mx-auto px-4 py-6">
-            <!-- Encabezado: Título y botón para crear nueva solicitud -->
-            <div class="mt-4 md:mt-0 flex flex-col md:flex-row gap-4">
-                @can('admin.solicitud.create')
-                    <a href="{{ route('admin.solicitud.create') }}"
-                       class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition duration-200">
-                        <!-- Ícono de más -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                  clip-rule="evenodd" />
-                        </svg>
-                        Nueva Solicitud
-                    </a>
+<!-- Encabezado: Título y botones de acciones -->
+<div class="mt-4 md:mt-0 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-                    @endcan
-                    @can('admin.solicitud.edit')
-                    <a href="{{ route('admin.solicitud.index') }}"
-                       class="flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg shadow hover:bg-red-700 transition duration-200">
-                        <!-- Ícono PDF -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 4v16m8-8H4" />
-                        </svg>
-                        Generar Reporte PDF
-                    </a>
-                @endcan
+<!-- Botones de acciones -->
+<div class="flex flex-wrap gap-3">
+    @can('admin.solicitud.create')
+        <!-- Botón Nueva Solicitud -->
+        <a href="{{ route('admin.solicitud.create') }}"
+           class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                      clip-rule="evenodd" />
+            </svg>
+            Nueva Solicitud
+        </a>
+    @endcan
+    <!-- Formulario de Exportación PDF/Excel -->
+    @can('admin.solicitud.edit')
+    <form method="GET"
+    action="{{ route('admin.solicitud.estadisticas') }}"
+    onsubmit="return handleFormatoSubmit(event)"
+    class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-lg shadow">
 
-                @can('admin.solicitud.edit')
-                <form method="GET" action="{{ route('admin.solicitud.reporte.estadisticas') }}" class="flex items-center gap-2 mb-6">
-                    <label for="inicio">Desde:</label>
-                    <input type="date" name="inicio" id="inicio" required class="border rounded px-2 py-1">
+  <div class="w-full sm:w-auto">
+      <label for="inicio" class="block text-sm font-medium text-gray-700">Desde</label>
+      <input type="date" name="inicio" id="inicio" required class="border rounded px-3 py-2 w-full">
+  </div>
 
-                    <label for="fin">Hasta:</label>
-                    <input type="date" name="fin" id="fin" required class="border rounded px-2 py-1">
+  <div class="w-full sm:w-auto">
+      <label for="fin" class="block text-sm font-medium text-gray-700">Hasta</label>
+      <input type="date" name="fin" id="fin" required class="border rounded px-3 py-2 w-full">
+  </div>
 
-                    <button type="submit"
-                            class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Descargar Estadísticas PDF
-                    </button>
-                </form>
+  <div class="flex gap-2 mt-4 sm:mt-0">
+      <!-- Botón PDF -->
+      <button type="submit" name="formato" value="pdf"
+              onclick="setFormatoTarget(this)"
+              class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Descargar PDF
+      </button>
 
-                @endcan
+      <!-- Botón Excel -->
+      <button type="submit" name="formato" value="excel"
+              onclick="setFormatoTarget(this)"
+              class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.5 8.25L15.75 4.5M15.75 4.5L12 8.25M15.75 4.5V19.5M4.5 12H12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Exportar Excel
+      </button>
+  </div>
+</form>
+
+<script>
+  function setFormatoTarget(button) {
+      const form = button.closest('form');
+      if (button.value === 'pdf') {
+          form.setAttribute('target', '_blank'); // Abrir en nueva pestaña
+      } else {
+          form.removeAttribute('target'); // Descarga directa
+      }
+  }
+</script>
+
+    @endcan
 
 
-            </div>
+</div>
+
+
+
+
+
+</div>
+
 
 
             <!-- Tarjetas de Contadores -->
