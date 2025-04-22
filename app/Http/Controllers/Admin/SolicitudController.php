@@ -79,7 +79,7 @@ class SolicitudController extends Controller
             'equipo_id'     => 'nullable|string',
             'archivo'       => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'descripcion'   => 'nullable|string',
-            'prioridad'     => 'nullable|string', // Validación para prioridad (puedes ajustar la regla según tus requerimientos)
+            'prioridad'     => 'nullable|string',
         ]);
 
         $data = $request->all();
@@ -124,7 +124,9 @@ class SolicitudController extends Controller
             'equipo_id'     => 'nullable|string',
             'archivo'       => 'nullable|file|mimes:pdf,doc,docx|max:5120',
             'descripcion'   => 'nullable|string',
-            'prioridad'     => 'nullable|string', // Validación para prioridad
+            'prioridad'     => 'nullable|string',
+            'puntuacion'    => 'nullable|string',
+            'comentario'    => 'nullable|string',
         ]);
 
         $data = $request->all();
@@ -299,95 +301,210 @@ class SolicitudController extends Controller
         return redirect()->back()->with('success', 'La solicitud ha sido reenviada exitosamente.');
     }
 
-    public function generarEstadisticas(Request $request)
-    {
-        $request->validate([
-            'inicio' => 'required|date',
-            'fin' => 'required|date|after_or_equal:inicio',
-            'formato' => 'required|in:pdf,excel',
-        ]);
+public function generarEstadisticas(Request $request)
+{
+    $request->validate([
+        'inicio'  => 'required|date',
+        'fin'     => 'required|date|after_or_equal:inicio',
+        'formato' => 'required|in:pdf,excel',
+    ]);
 
-        $inicio = $request->input('inicio');
-        $fin = $request->input('fin');
+    $inicio = $request->input('inicio');
+    $fin    = $request->input('fin');
 
-        // Técnicos
-        $tecnicos = User::role('tecnico')->get();
-        $estadisticasTecnicos = [];
-        $estadisticasAreas = [];
+    //
+    // 1. Estadísticas por técnico y acumulado por área
+    //
+    $tecnicos             = User::role('tecnico')->get();
+    $estadisticasTecnicos = [];
+    $estadisticasAreas    = [];
 
-        foreach ($tecnicos as $tecnico) {
-            $atendidas = Solicitud::where('tecnico', $tecnico->id)
-                ->whereBetween('created_at', [$inicio, $fin])
-                ->count();
-
-            $concluidas = Solicitud::where('tecnico', $tecnico->id)
-                ->where('estado', 'finalizada')
-                ->whereBetween('created_at', [$inicio, $fin])
-                ->count();
-
-            $estadisticasTecnicos[] = [
-                'nombre' => $tecnico->name,
-                'area' => $tecnico->area,
-                'atendidas' => $atendidas,
-                'concluidas' => $concluidas,
-            ];
-
-            if (!isset($estadisticasAreas[$tecnico->area])) {
-                $estadisticasAreas[$tecnico->area] = 0;
-            }
-            $estadisticasAreas[$tecnico->area] += $atendidas;
-        }
-
-        // Resumen por estado
-        $estadisticasEstados = Solicitud::selectRaw('estado, COUNT(*) as total')
-            ->whereBetween('created_at', [$inicio, $fin])
-            ->groupBy('estado')
-            ->pluck('total', 'estado');
-
-        // Tipos de problema con mayor incidencia
-        $problemas = TipoProblema::withCount(['solicitudes' => function ($q) use ($inicio, $fin) {
-            $q->whereBetween('created_at', [$inicio, $fin]);
-        }])->orderByDesc('solicitudes_count')->take(10)->get();
-
-        // Solicitudes sin técnico
-        $sinTecnico = Solicitud::whereNull('tecnico')
+    foreach ($tecnicos as $tecnico) {
+        $atendidas = Solicitud::where('tecnico', $tecnico->id)
             ->whereBetween('created_at', [$inicio, $fin])
             ->count();
 
-        // Tiempo promedio de atención
-        $tiempoPromedio = Solicitud::where('estado', 'finalizada')
+        $concluidas = Solicitud::where('tecnico', $tecnico->id)
+            ->where('estado', 'finalizada')
             ->whereBetween('created_at', [$inicio, $fin])
-            ->get()
-            ->map(function ($s) {
-                return $s->created_at->diffInDays($s->updated_at);
-            })->avg();
+            ->count();
 
-        $data = [
-            'fechaInicio' => $inicio,
-            'fechaFin' => $fin,
-            'estadisticasTecnicos' => $estadisticasTecnicos,
-            'estadisticasEstados' => $estadisticasEstados,
-            'atencionesPorArea' => $estadisticasAreas,
-            'tiposProblemas' => $problemas,
-            'sinTecnico' => $sinTecnico,
-            'tiempoPromedio' => $tiempoPromedio,
+        $estadisticasTecnicos[] = [
+            'nombre'     => $tecnico->name,
+            'area'       => $tecnico->area,
+            'atendidas'  => $atendidas,
+            'concluidas' => $concluidas,
         ];
 
-        if ($request->input('formato') === 'excel') {
-            // Generar HTML de la vista Excel
-            $html = view('admin.solicitud.reporte.estadisticas_excel', $data)->render();
-
-            // Guardar temporalmente como archivo .xls
-            $filePath = storage_path('app/public/estadisticas_solicitudes.xls');
-            file_put_contents($filePath, $html);
-
-            // Forzar descarga
-            return response()->download($filePath, 'estadisticas_solicitudes.xls')->deleteFileAfterSend(true);
-        } else {
-            $pdf = \PDF::loadView('admin.solicitud.reporte.estadisticas', $data);
-            return $pdf->stream('estadisticas_solicitudes.pdf');
-        }
+        // Acumular por área:
+        $estadisticasAreas[$tecnico->area] =
+            ($estadisticasAreas[$tecnico->area] ?? 0) + $atendidas;
     }
+
+    //
+    // 2. Resumen por estado
+    //
+    $estadisticasEstados = Solicitud::selectRaw('estado, COUNT(*) as total')
+        ->whereBetween('created_at', [$inicio, $fin])
+        ->groupBy('estado')
+        ->pluck('total', 'estado');
+
+    //
+    // 3. Tipos de problema más frecuentes
+    //
+    $problemas = TipoProblema::withCount(['solicitudes' => function ($q) use ($inicio, $fin) {
+        $q->whereBetween('created_at', [$inicio, $fin]);
+    }])
+    ->orderByDesc('solicitudes_count')
+    ->take(10)
+    ->get();
+
+    //
+    // 4. Solicitudes sin técnico
+    //
+    $sinTecnico = Solicitud::whereNull('tecnico')
+        ->whereBetween('created_at', [$inicio, $fin])
+        ->count();
+
+    //
+    // 5. Tiempo promedio de atención (en días)
+    //
+    $tiempoPromedio = Solicitud::where('estado', 'finalizada')
+        ->whereBetween('created_at', [$inicio, $fin])
+        ->get()
+        ->map(fn($s) => $s->created_at->diffInDays($s->updated_at))
+        ->avg();
+
+    //
+    // 6. Promedio de calificaciones (casteando a integer para PostgreSQL)
+    //
+    $avgRating = Solicitud::where('estado', 'finalizada')
+        ->whereBetween('created_at', [$inicio, $fin])
+        ->whereNotNull('puntuacion')
+        ->selectRaw('AVG((puntuacion)::integer) as avg_rating')
+        ->value('avg_rating');
+
+    //
+    // 7. Promedio de calificaciones por área (en PHP)
+    //
+    $ratingByArea = Solicitud::where('estado', 'finalizada')
+        ->whereBetween('created_at', [$inicio, $fin])
+        ->whereNotNull('puntuacion')
+        ->with('tecnicoUser')
+        ->get()
+        ->groupBy(fn($s) => $s->tecnicoUser->area ?? 'Sin Área')
+        ->map(fn($col) => round(
+            collect($col)->pluck('puntuacion')
+                          ->map(fn($v) => (int)$v)
+                          ->avg(),
+            2
+        ))
+        ->toArray();
+
+    // Datos que se pasan a la vista
+    $data = [
+        'fechaInicio'          => $inicio,
+        'fechaFin'             => $fin,
+        'estadisticasTecnicos' => $estadisticasTecnicos,
+        'estadisticasEstados'  => $estadisticasEstados,
+        'atencionesPorArea'    => $estadisticasAreas,
+        'tiposProblemas'       => $problemas,
+        'sinTecnico'           => $sinTecnico,
+        'tiempoPromedio'       => round($tiempoPromedio, 2),
+        'avgRating'            => round($avgRating, 2),
+        'ratingByArea'         => $ratingByArea,
+    ];
+
+    if ($request->input('formato') === 'excel') {
+        // RENDERIZAR VISTA EXCEL (¿usando Maatwebsite/Excel o HTML->XLS?)
+        $html     = view('admin.solicitud.reporte.estadisticas_excel', $data)->render();
+        $filePath = storage_path('app/public/estadisticas_solicitudes.xls');
+        file_put_contents($filePath, $html);
+        return response()->download($filePath, 'estadisticas_solicitudes.xls')
+                         ->deleteFileAfterSend(true);
+    }
+
+    // Renderizar PDF
+    $pdf = \PDF::loadView('admin.solicitud.reporte.estadisticas', $data);
+    return $pdf->stream('estadisticas_solicitudes.pdf');
+}
+
+
+
+public function generarEstadisticasFiltrado(Request $request)
+{
+    $request->validate([
+        'inicio'    => 'required|date',
+        'fin'       => 'required|date|after_or_equal:inicio',
+        'formato'   => 'required|in:pdf,excel',
+        'tecnico'   => 'nullable|exists:users,id',
+        'estado'    => 'nullable|in:pendiente,en proceso,finalizada,cancelada',
+        'prioridad' => 'nullable|in:baja,media,alta',
+    ]);
+
+    $fI = $request->input('inicio');
+    $fF = $request->input('fin');
+    $t  = $request->input('tecnico');
+    $e  = $request->input('estado');
+    $p  = $request->input('prioridad');
+
+    // Base query
+    $q = Solicitud::with(['solicitanteUser', 'tecnicoUser'])
+        ->whereBetween('created_at', [$fI, $fF]);
+
+    if ($t) $q->where('tecnico', $t);
+    if ($e) $q->where('estado', $e);
+    if ($p) $q->where('prioridad', $p);
+
+    $solicitudes = $q->orderBy('created_at','desc')->get();
+
+    $data = [
+        'fechaInicio'    => $fI,
+        'fechaFin'       => $fF,
+        'filtroTecnico'  => $t,
+        'filtroEstado'   => $e,
+        'filtroPrioridad'=> $p,
+        'solicitudes'    => $solicitudes,
+    ];
+
+    if ($request->input('formato') === 'excel') {
+        // Puedes reutilizar la misma vista, o crear una versión Excel si lo prefieres.
+        $html     = view('admin.solicitud.reporte.estadisticas_filtrado', $data)->render();
+        $filePath = storage_path('app/public/solicitudes_filtrado.xls');
+        file_put_contents($filePath, $html);
+        return response()->download($filePath, 'solicitudes_filtrado.xls')
+                         ->deleteFileAfterSend(true);
+    }
+
+    $pdf = PDF::loadView('admin.solicitud.reporte.estadisticas_filtrado', $data);
+    return $pdf->stream('solicitudes_filtrado.pdf');
+}
+
+
+    public function calificar(Solicitud $solicitud)
+    {
+        // Sólo puede entrar si ya está finalizada
+        abort_unless($solicitud->estado === 'finalizada', 403);
+
+        // Mostrar una vista específica con sólo feedback
+        return view('admin.solicitud.calificar', compact('solicitud'));
+    }
+
+    public function storeCalificacion(Request $request, Solicitud $solicitud)
+    {
+        $request->validate([
+            'puntuacion'  => 'required|integer|min:1|max:5',
+            'comentario'  => 'nullable|string|max:1000',
+        ]);
+
+
+        $solicitud->update($request->only('puntuacion','comentario'));
+
+        return redirect()->route('admin.solicitud.index')
+                         ->with('success','Feedback guardado correctamente.');
+    }
+
+
 
 
 }

@@ -7,78 +7,134 @@
 
 <!-- Botones de acciones -->
 <div class="flex flex-wrap gap-3">
-    @can('admin.solicitud.create')
-        <!-- Botón Nueva Solicitud -->
-        <a href="{{ route('admin.solicitud.create') }}"
-           class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition duration-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                      clip-rule="evenodd" />
-            </svg>
-            Nueva Solicitud
-        </a>
-    @endcan
-    <!-- Formulario de Exportación PDF/Excel -->
-    @can('admin.solicitud.edit')
-    <form method="GET"
-    action="{{ route('admin.solicitud.estadisticas') }}"
-    onsubmit="return handleFormatoSubmit(event)"
-    class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-lg shadow">
+        @can('admin.solicitud.create')
+            <!-- Botón Nueva Solicitud -->
+            <a href="{{ route('admin.solicitud.create') }}"
+               class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition duration-200 dark:bg-green-700 dark:hover:bg-green-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                          d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                          clip-rule="evenodd" />
+                </svg>
+                Nueva Solicitud
+            </a>
+        @endcan
 
-  <div class="w-full sm:w-auto">
-      <label for="inicio" class="block text-sm font-medium text-gray-700">Desde</label>
-      <input type="date" name="inicio" id="inicio" required class="border rounded px-3 py-2 w-full">
-  </div>
+        @can('admin.solicitud.edit')
+            <!-- Reporte General -->
+            <form method="GET"
+                  action="{{ route('admin.solicitud.estadisticas') }}"
+                  class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-lg shadow dark:bg-gray-800 dark:text-white">
+                <div class="w-full sm:w-auto">
+                    <label for="gen_inicio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Desde</label>
+                    <input type="date" name="inicio" id="gen_inicio" required
+                           class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+                <div class="w-full sm:w-auto">
+                    <label for="gen_fin" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Hasta</label>
+                    <input type="date" name="fin" id="gen_fin" required
+                           class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+                <div class="flex gap-2 mt-4 sm:mt-0">
+                    <button type="submit" name="formato" value="pdf"
+                            onclick="setFormatoTarget(this)"
+                            class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Descargar PDF
+                    </button>
+                    <button type="submit" name="formato" value="excel"
+                            onclick="setFormatoTarget(this)"
+                            class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.5 8.25L15.75 4.5M15.75 4.5L12 8.25M15.75 4.5V19.5M4.5 12H12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Exportar Excel
+                    </button>
+                </div>
+            </form>
 
-  <div class="w-full sm:w-auto">
-      <label for="fin" class="block text-sm font-medium text-gray-700">Hasta</label>
-      <input type="date" name="fin" id="fin" required class="border rounded px-3 py-2 w-full">
-  </div>
+            <!-- Reporte Filtrado -->
+            <form method="GET"
+                  action="{{ route('admin.solicitud.estadisticas_filtrado') }}"
+                  class="flex flex-wrap gap-4 items-end bg-white p-4 rounded-lg shadow dark:bg-gray-800 dark:text-white">
+                <!-- Rango de fechas -->
+                <div class="w-full sm:w-auto">
+                    <label for="fil_inicio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Desde</label>
+                    <input type="date" name="inicio" id="fil_inicio" value="{{ request('inicio') }}" required
+                           class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+                <div class="w-full sm:w-auto">
+                    <label for="fil_fin" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Hasta</label>
+                    <input type="date" name="fin" id="fil_fin" value="{{ request('fin') }}" required
+                           class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
 
-  <div class="flex gap-2 mt-4 sm:mt-0">
-      <!-- Botón PDF -->
-      <button type="submit" name="formato" value="pdf"
-              onclick="setFormatoTarget(this)"
-              class="flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Descargar PDF
-      </button>
+                <!-- Técnico -->
+                <div class="w-full sm:w-auto">
+                    <label for="fil_tecnico" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Técnico</label>
+                    <select name="tecnico" id="fil_tecnico"
+                            class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                        <option value="">Todos</option>
+                        @foreach(\App\Models\User::role('tecnico')->get() as $tec)
+                            <option value="{{ $tec->id }}" {{ request('tecnico') == $tec->id ? 'selected' : '' }}>
+                                {{ $tec->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-      <!-- Botón Excel -->
-      <button type="submit" name="formato" value="excel"
-              onclick="setFormatoTarget(this)"
-              class="flex items-center px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.5 8.25L15.75 4.5M15.75 4.5L12 8.25M15.75 4.5V19.5M4.5 12H12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Exportar Excel
-      </button>
-  </div>
-</form>
+                <!-- Estado -->
+                <div class="w-full sm:w-auto">
+                    <label for="fil_estado" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
+                    <select name="estado" id="fil_estado"
+                            class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                        <option value="">Todos</option>
+                        @foreach(['pendiente','en proceso','finalizada','cancelada'] as $st)
+                            <option value="{{ $st }}" {{ request('estado') == $st ? 'selected' : '' }}>
+                                {{ ucfirst($st) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-<script>
-  function setFormatoTarget(button) {
-      const form = button.closest('form');
-      if (button.value === 'pdf') {
-          form.setAttribute('target', '_blank'); // Abrir en nueva pestaña
-      } else {
-          form.removeAttribute('target'); // Descarga directa
-      }
-  }
-</script>
+                <!-- Prioridad -->
+                <div class="w-full sm:w-auto">
+                    <label for="fil_prioridad" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prioridad</label>
+                    <select name="prioridad" id="fil_prioridad"
+                            class="border rounded px-3 py-2 w-full dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                        <option value="">Todas</option>
+                        @foreach(['baja','media','alta'] as $pr)
+                            <option value="{{ $pr }}" {{ request('prioridad') == $pr ? 'selected' : '' }}>
+                                {{ ucfirst($pr) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-    @endcan
+                <!-- Botones -->
+                <div class="flex gap-2 mt-4 sm:mt-0">
+                    <button type="submit" name="formato" value="pdf"
+                            onclick="setFormatoTarget(this)"
+                            class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
+                        PDF Filtrado
+                    </button>
+                </div>
+            </form>
 
-
-</div>
-
-
-
-
-
+            <script>
+            function setFormatoTarget(btn) {
+                const form = btn.closest('form');
+                if (btn.value === 'pdf') {
+                    form.setAttribute('target', '_blank');
+                } else {
+                    form.removeAttribute('target');
+                }
+            }
+            </script>
+        @endcan
+    </div>
 </div>
 
 
@@ -167,6 +223,8 @@
                             <th class="px-4 py-3 text-left">Prioridad</th>
                             <th class="px-4 py-3 text-left">Tiempo transcurrido</th>
                             <th class="px-4 py-3 text-left">Atenciones</th>
+                            <th class="px-4 py-3 text-left">Puntuación</th>
+                            <th class="px-4 py-3 text-left">Comentario</th>
                             <th class="px-4 py-3 text-left">Acciones</th>
                         </tr>
                     </thead>
@@ -251,7 +309,10 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-2">{{ $solicitud->atenciones->count() }}</td>
+                                <td class="px-4 py-2">{{ $solicitud->puntuacion ?? '-' }}</td>
+                                <td class="px-4 py-2">{{ Str::limit($solicitud->comentario, 30) ?? '-' }}</td>
                                 <td class="px-4 py-2 flex flex-col space-y-1">
+
                                     <!-- Botón para Editar -->
                                     @can('admin.solicitud.edit')
                                         <a href="{{ route('admin.solicitud.edit', $solicitud) }}"
@@ -320,6 +381,29 @@
                                         </button>
                                     @endif
                                 </td>
+
+<td class="px-4 py-2 flex flex-col space-y-1">
+    @can('admin.solicitud.edit')
+        @if($solicitud->estado === 'finalizada')
+            <!-- Cuando ya está finalizada, sólo ofrezco “Calificar” -->
+            <a href="{{ route('admin.solicitud.calificar', $solicitud) }}"
+               class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+                <svg … class="h-5 w-5 inline-block mr-1">…</svg>
+                Calificar
+            </a>
+        @else
+            <!-- En cualquier otro caso, dejo “Editar” -->
+            <a href="{{ route('admin.solicitud.edit', $solicitud) }}"
+               class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                <svg … class="h-5 w-5 inline-block mr-1">…</svg>
+                Editar
+            </a>
+        @endif
+    @endcan
+    …
+</td>
+
+
                             </tr>
                         @endforeach
                     </tbody>

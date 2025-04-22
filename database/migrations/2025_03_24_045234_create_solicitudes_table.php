@@ -34,6 +34,8 @@ return new class extends Migration
             $table->string('estado')->default('pendiente');
             $table->string('prioridad')->default('media'); // prioridad de la solicitud (baja, media, alta)
             $table->text('motivo_rechazo')->nullable();
+            $table->text('puntuacion')->nullable();
+            $table->text('comentario')->nullable();
 
 
             $table->timestamps();

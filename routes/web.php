@@ -34,6 +34,10 @@ Route::middleware(['auth', 'verified'])
         Route::get('solicitud/estadisticas', [SolicitudController::class, 'generarEstadisticas'])
         ->name('solicitud.estadisticas');
 
+        Route::get('solicitud/estadisticas_filtrado', [SolicitudController::class, 'generarEstadisticasFiltrado'])
+        ->name('solicitud.estadisticas_filtrado');
+
+
 
         // CRUD de Solicitudes (Listado general)
         Route::resource('solicitud', SolicitudController::class);
@@ -77,6 +81,21 @@ Route::middleware(['auth', 'verified'])
         // NUEVA RUTA: Para reenviar una solicitud individual
         Route::post('solicitud/{solicitud}/reenviar', [SolicitudController::class, 'reenviarSolicitud'])
             ->name('solicitud.reenviar');
+
+            Route::get('solicitud/{solicitud}/calificar', [SolicitudController::class, 'calificar'])
+            ->name('solicitud.calificar')
+            ->middleware('can:admin.solicitud.edit');
+
+            Route::get('solicitud/{solicitud}/calificar', [SolicitudController::class, 'calificar'])
+            ->name('solicitud.calificar')
+            ->middleware('can:admin.solicitud.edit');
+
+            Route::post('solicitud/{solicitud}/calificar', [SolicitudController::class, 'storeCalificacion'])
+                ->name('solicitud.storeCalificacion')
+                ->middleware('can:admin.solicitud.edit');
+
+
+
 
 
 
